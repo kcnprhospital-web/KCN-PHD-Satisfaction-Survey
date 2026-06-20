@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Satisfaction Survey | Kampong Chhnang PHD</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Khmer:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0d4f7c;
+            --primary-light: #1a6daa;
+            --primary-dark: #083752;
+            --accent: #e8a817;
+            --accent-light: #f5c34b;
+            --success: #2d8a4e;
+            --danger: #c0392b;
+            --bg: #f5f6f8;
+            --card-bg: #ffffff;
+            --text: #2c3e50;
+            --text-light: #5a6c7d;
+            --border: #dce3e8;
+            --shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.10);
+            --radius: 10px;
+            --radius-sm: 6px;
+            --transition: 0.25s ease;
+            --font: 'Segoe UI', 'Inter', 'Noto Sans Khmer', system-ui, -apple-system, sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+            background-image:
+                radial-gradient(ellipse at 20% 20%, rgba(13,79,124,0.03) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 80%, rgba(232,168,23,0.04) 0%, transparent 60%);
+        }
+
+        body[data-lang="en"] .lang-km { display: none !important; }
+        body[data-lang="km"] .lang-en { display: none !important; }
+
+        /* ── HEADER ──────────────────────────── */
+        .header {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 50%, var(--primary-light) 100%);
+            color: #fff;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.18);
+        }
+        .header-inner {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .header-logo { display: flex; align-items: center; justify-content: center; flex-shrink: 0; height: 52px; width: auto; }
+        .header-logo svg { height: 52px; width: auto; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2)); }
+        .header-title h1 { font-size: 1.2rem; font-weight: 700; line-height: 1.3; }
+        .header-title span { font-size: 0.82rem; font-weight: 400; opacity: 0.9; display: block; }
+
+        .lang-switch {
+            margin-left: auto;
+            display: flex;
+            gap: 6px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 30px;
+            padding: 4px;
+            backdrop-filter: blur(4px);
+        }
+        .lang-btn {
+            background: transparent;
+            border: none;
+            color: #fff;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.82rem;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: var(--font);
+        }
+        .lang-btn.active { background: #fff; color: var(--primary); box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
+        .lang-btn:not(.active):hover { background: rgba(255,255,255,0.2); }
+
+        /* ── MAIN CONTAINER ──────────────────── */
+        .container { max-width: 960px; margin: 0 auto; padding: 24px 20px 60px; }
+
+        /* ── PROGRESS BAR ────────────────────── */
+        .progress-wrap {
+            background: var(--card-bg); border-radius: var(--radius); padding: 18px 22px;
+            margin-bottom: 20px; box-shadow: var(--shadow); display: flex; align-items: center;
+            gap: 14px; flex-wrap: wrap;
+        }
+        .progress-bar-outer { flex:1; min-width:180px; height:10px; background:#e9edf1; border-radius:10px; overflow:hidden; }
+        .progress-bar-inner { height:100%; background:linear-gradient(90deg, var(--primary-light), var(--accent)); border-radius:10px; transition:width 0.5s; width:0%; }
+        .progress-text { font-weight:700; font-size:0.9rem; color:var(--primary); white-space:nowrap; }
+        .progress-step { font-size:0.78rem; color:var(--text-light); white-space:nowrap; }
+
+        /* ── SECTIONS & CARDS ────────────────── */
+        .section { display: none; animation: fadeSlideIn 0.4s ease; }
+        .section.active { display: block; }
+        @keyframes fadeSlideIn { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:translateY(0); } }
+        .card {
+            background: var(--card-bg); border-radius: var(--radius); padding: 28px 30px;
+            margin-bottom: 18px; box-shadow: var(--shadow); border:1px solid var(--border);
+            transition: var(--transition);
+        }
+        .card:hover { box-shadow: var(--shadow-lg); }
+        .card h2 { font-size:1.3rem; color:var(--primary-dark); margin-bottom:6px; display:flex; align-items:center; gap:10px; }
+        .card h2 .icon { font-size:1.5rem; }
+        .card .subtitle { color:var(--text-light); font-size:0.88rem; margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid var(--border); }
+
+        /* ── FORM ELEMENTS ───────────────────── */
+        .form-group { margin-bottom:18px; }
+        label { display:block; font-weight:600; font-size:0.9rem; margin-bottom:5px; color:var(--text); }
+        label .required { color:var(--danger); margin-left:3px; }
+        select, input[type="text"], input[type="password"], textarea {
+            width:100%; padding:11px 14px; border:1.5px solid var(--border); border-radius:var(--radius-sm);
+            font-size:0.95rem; font-family:var(--font); transition:var(--transition); background:#fafbfc; color:var(--text);
+            appearance:none; -webkit-appearance:none;
+        }
+        select {
+            background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235a6c7d' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'%3E%3C/path%3E%3C/svg%3E");
+            background-repeat:no-repeat; background-position:right 14px center; padding-right:38px; cursor:pointer;
+        }
+        select:focus, input:focus, textarea:focus { outline:none; border-color:var(--primary-light); box-shadow:0 0 0 3px rgba(13,79,124,0.08); background:#fff; }
+        textarea { resize:vertical; min-height:100px; }
+
+        /* ── LIKERT SCALE ────────────────────── */
+        .likert-group { margin-bottom:20px; padding:14px 16px; background:#fafcfd; border-radius:var(--radius-sm); border:1px solid transparent; transition:var(--transition); }
+        .likert-group:hover { border-color:#d0dbe4; background:#fdfefe; }
+        .likert-group .q-text { font-weight:500; font-size:0.93rem; margin-bottom:10px; color:var(--text); }
+        .likert-options { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+        .likert-options input[type="radio"] { display:none; }
+        .likert-options label.radio-btn {
+            display:inline-flex; align-items:center; justify-content:center;
+            width:42px; height:42px; border-radius:50%; border:2px solid #d0d8e0;
+            cursor:pointer; font-weight:600; font-size:0.9rem; transition:var(--transition);
+            background:#fff; color:#6b7d8e; user-select:none; flex-shrink:0;
+        }
+        .likert-options label.radio-btn:hover { border-color:var(--primary-light); color:var(--primary); background:#eef5fb; }
+        .likert-options input[type="radio"]:checked+label.radio-btn { background:var(--primary); color:#fff; border-color:var(--primary); box-shadow:0 3px 10px rgba(13,79,124,0.3); transform:scale(1.06); }
+        .likert-labels { display:flex; justify-content:space-between; font-size:0.7rem; color:#8899aa; margin-top:4px; padding:0 4px; }
+        .likert-labels span { text-align:center; width:42px; }
+
+        /* ── BUTTONS ─────────────────────────── */
+        .btn-row { display:flex; gap:12px; flex-wrap:wrap; margin-top:24px; }
+        .btn { padding:12px 28px; border-radius:30px; font-weight:600; font-size:0.95rem; cursor:pointer; border:none; transition:var(--transition); letter-spacing:0.02em; font-family:var(--font); display:inline-flex; align-items:center; gap:8px; }
+        .btn-primary { background:var(--primary); color:#fff; box-shadow:0 4px 14px rgba(13,79,124,0.3); }
+        .btn-primary:hover { background:var(--primary-light); box-shadow:0 6px 20px rgba(13,79,124,0.4); transform:translateY(-1px); }
+        .btn-secondary { background:#fff; color:var(--primary); border:2px solid var(--border); }
+        .btn-secondary:hover { border-color:var(--primary-light); background:#f8fafc; }
+        .btn-accent { background:var(--accent); color:#1a1a1a; box-shadow:0 4px 14px rgba(232,168,23,0.35); font-weight:700; }
+        .btn-accent:hover { background:var(--accent-light); box-shadow:0 6px 20px rgba(232,168,23,0.45); transform:translateY(-1px); }
+        .btn:disabled { opacity:0.55; cursor:not-allowed; pointer-events:none; }
+        .btn-sm { padding:8px 18px; font-size:0.8rem; }
+
+        /* ── MODAL ───────────────────────────── */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            align-items: center; justify-content: center;
+            z-index: 200;
+        }
+        .modal.show { display: flex; }
+        .modal-content {
+            background: #fff;
+            border-radius: var(--radius);
+            padding: 30px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: var(--shadow-lg);
+        }
+        .modal-content h3 { margin-bottom: 16px; color: var(--primary-dark); }
+
+        /* ── REPORTS TABLE ──────────────────── */
+        .report-table { width:100%; border-collapse:collapse; margin-top:10px; font-size:0.85rem; }
+        .report-table th, .report-table td { border:1px solid var(--border); padding:8px 10px; text-align:left; }
+        .report-table th { background: var(--primary); color:#fff; }
+        .report-filter { display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end; margin-bottom:18px; }
+        .report-filter .form-group { margin-bottom:0; flex:1; min-width:150px; }
+
+        /* ── PRIVACY BOX ────────────────────── */
+        .privacy-box { background:#fef9ed; border:1px solid #f0d78c; border-radius:var(--radius-sm); padding:16px 18px; margin:16px 0; font-size:0.88rem; color:#6b5518; display:flex; gap:10px; align-items:flex-start; }
+
+        /* ── TOAST ───────────────────────────── */
+        .toast { position:fixed; top:20px; right:20px; z-index:9999; padding:14px 22px; border-radius:30px; color:#fff; font-weight:600; font-size:0.9rem; box-shadow:0 6px 24px rgba(0,0,0,0.25); animation:slideInRight 0.35s ease; max-width:400px; }
+        .toast.success { background:var(--success); }
+        .toast.error { background:var(--danger); }
+        @keyframes slideInRight { from {opacity:0; transform:translateX(60px);} to {opacity:1; transform:translateX(0);} }
+
+        /* ── FOOTER ──────────────────────────── */
+        .footer { text-align:center; padding:20px; color:var(--text-light); font-size:0.8rem; }
+        .footer a { color:var(--primary); cursor:pointer; text-decoration:underline; }
+
+        @media (max-width:640px) {
+            .header-inner { padding:10px 14px; gap:10px; }
+            .header-logo svg { height:38px; }
+            .header-title h1 { font-size:1rem; }
+            .card { padding:18px 14px; }
+            .likert-options label.radio-btn { width:34px; height:34px; font-size:0.78rem; }
+            .btn { padding:10px 20px; font-size:0.85rem; }
+        }
+    </style>
+</head>
+<body data-lang="en">
+
+    <!-- HEADER -->
+    <header class="header">
+        <div class="header-inner">
+            <div class="header-logo">
+                <svg height="52" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="100" cy="100" r="95" fill="#0D4F7C" stroke="#fff" stroke-width="4"/>
+                    <path d="M100 30 L60 70 L30 55 L30 85 L60 100 L30 125 L30 155 L60 140 L100 170 L140 140 L170 155 L170 125 L140 100 L170 85 L170 55 L140 70 Z" fill="#E8A817" stroke="#fff" stroke-width="2"/>
+                    <line x1="100" y1="30" x2="100" y2="170" stroke="#fff" stroke-width="2"/>
+                    <line x1="60" y1="70" x2="140" y2="70" stroke="#fff" stroke-width="2"/>
+                    <line x1="60" y1="140" x2="140" y2="140" stroke="#fff" stroke-width="2"/>
+                    <text x="100" y="185" text-anchor="middle" fill="#fff" font-size="20" font-weight="bold" font-family="Arial">MoH</text>
+                </svg>
+            </div>
+            <div class="header-title">
+                <h1><span class="lang-en">Staff Satisfaction Survey</span><span class="lang-km">ការស្ទង់មតិពេញចិត្តរបស់បុគ្គលិក</span></h1>
+                <span><span class="lang-en">Kampong Chhnang Provincial Health Department</span><span class="lang-km">មន្ទីរសុខាភិបាលខេត្តកំពង់ឆ្នាំង</span></span>
+            </div>
+            <div class="lang-switch">
+                <button class="lang-btn active" data-lang="en" id="btnLangEn">EN</button>
+                <button class="lang-btn" data-lang="km" id="btnLangKm">KH</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <div class="container" id="appContainer">
+
+        <!-- ═══════════════════════════════════ -->
+        <!-- SECTION 0: WELCOME -->
+        <!-- ═══════════════════════════════════ -->
+        <div class="section active" data-section="0" id="section0">
+            <div class="card">
+                <h2><span class="icon">📋</span><span class="lang-en">Welcome to the Staff Satisfaction Survey</span><span class="lang-km">សូមស្វាគមន៍មកកាន់ការស្ទង់មតិពេញចិត្តរបស់បុគ្គលិក</span></h2>
+                <p class="subtitle"><span class="lang-en">Your voice matters — help us improve the workplace for everyone.</span><span class="lang-km">សំឡេងរបស់អ្នកសំខាន់ — ជួយយើងកែលម្អកន្លែងធ្វើការសម្រាប់អ្នករាល់គ្នា។</span></p>
+                <p style="margin-bottom:12px;"><span class="lang-en">This survey is designed to assess staff satisfaction across all facilities under the <strong>Kampong Chhnang Provincial Health Department</strong>, including the Provincial Health Department offices, Operational Districts, Referral Hospitals, Health Centers, and Health Posts.</span><span class="lang-km">ការស្ទង់មតិនេះត្រូវបានរៀបចំឡើងដើម្បីវាយតម្លៃការពេញចិត្តរបស់បុគ្គលិកនៅគ្រប់មណ្ឌលសុខាភិបាលក្រោម <strong>មន្ទីរសុខាភិបាលខេត្តកំពង់ឆ្នាំង</strong> រួមទាំងការិយាល័យមន្ទីរសុខាភិបាល ស្រុកប្រតិបត្តិ មន្ទីរពេទ្យបង្អែក មណ្ឌលសុខភាព និងប៉ុស្តិ៍សុខភាព។</span></p>
+                <p style="margin-bottom:12px;"><span class="lang-en">The survey will take approximately <strong>8–12 minutes</strong> to complete. Your responses are <strong>completely anonymous</strong> and will be used solely for organizational improvement purposes.</span><span class="lang-km">ការស្ទង់មតិនេះនឹងចំណាយពេលប្រហែល <strong>៨–១២ នាទី</strong>។ ចម្លើយរបស់អ្នកគឺ <strong>អនាមិកទាំងស្រុង</strong> ហើយនឹងត្រូវបានប្រើប្រាស់សម្រាប់តែការកែលម្អស្ថាប័នប៉ុណ្ណោះ។</span></p>
+                <div class="privacy-box"><span class="icon">🔒</span><div><strong><span class="lang-en">Privacy & Confidentiality Notice:</span><span class="lang-km">ការជូនដំណឹងអំពីភាពឯកជន និងការសម្ងាត់៖</span></strong> <span class="lang-en">No personally identifiable information is collected. Individual responses cannot be traced back to any staff member. Data is stored securely and aggregated for analysis. By submitting this survey, you consent to the anonymous use of your responses for quality improvement purposes.</span><span class="lang-km">មិនមានការប្រមូលព័ត៌មានដែលអាចកំណត់អត្តសញ្ញាណបុគ្គលបានទេ។ ចម្លើយនីមួយៗមិនអាចតាមដានត្រឡប់ទៅបុគ្គលិកណាម្នាក់បានឡើយ។ ទិន្នន័យត្រូវបានរក្សាទុកដោយសុវត្ថិភាព និងបូកសរុបសម្រាប់ការវិភាគ។ តាមរយៈការបញ្ជូនការស្ទង់មតិនេះ អ្នកយល់ព្រមចំពោះការប្រើប្រាស់ចម្លើយរបស់អ្នកដោយអនាមិកសម្រាប់គោលបំណងកែលម្អគុណភាព។</span></div></div>
+                <div class="btn-row" style="justify-content:flex-end;"><button class="btn btn-primary" onclick="goToSection(1)"><span class="lang-en">Begin Survey →</span><span class="lang-km">ចាប់ផ្តើម →</span></button></div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════ -->
+        <!-- SECTION 1: DEMOGRAPHICS -->
+        <!-- ═══════════════════════════════════ -->
+        <div class="section" data-section="1" id="section1">
+            <div class="card">
+                <h2><span class="icon">👤</span><span class="lang-en">Demographic Information</span><span class="lang-km">ព័ត៌មានប្រជាសាស្ត្រ</span></h2>
+                <p class="subtitle"><span class="lang-en">Please provide general information about yourself (anonymous).</span><span class="lang-km">សូមផ្តល់ព័ត៌មានទូទៅអំពីខ្លួនអ្នក (អនាមិក)។</span></p>
+                <div class="form-group"><label for="gender"><span class="lang-en">Gender</span><span class="lang-km">ភេទ</span> <span class="required">*</span></label><select id="gender" required><option value="" data-en="-- Please select --" data-km="-- សូមជ្រើសរើស --">-- Please select --</option><option value="female" data-en="Female" data-km="ស្រី">Female</option><option value="male" data-en="Male" data-km="ប្រុស">Male</option><option value="other" data-en="Other" data-km="ផ្សេងទៀត">Other</option><option value="prefer_not_say" data-en="Prefer not to say" data-km="មិនចង់បញ្ជាក់">Prefer not to say</option></select></div>
+                <div class="form-group"><label for="ageRange"><span class="lang-en">Age Range</span><span class="lang-km">ចន្លោះអាយុ</span> <span class="required">*</span></label><select id="ageRange" required><option value="" data-en="-- Please select --" data-km="-- សូមជ្រើសរើស --">-- Please select --</option><option value="18-25" data-en="18 – 25 years" data-km="១៨ – ២៥ ឆ្នាំ">18 – 25 years</option><option value="26-35" data-en="26 – 35 years" data-km="២៦ – ៣៥ ឆ្នាំ">26 – 35 years</option><option value="36-45" data-en="36 – 45 years" data-km="៣៦ – ៤៥ ឆ្នាំ">36 – 45 years</option><option value="46-55" data-en="46 – 55 years" data-km="៤៦ – ៥៥ ឆ្នាំ">46 – 55 years</option><option value="56+" data-en="56 years and above" data-km="៥៦ ឆ្នាំឡើង">56 years and above</option></select></div>
+                <div class="form-group"><label for="yearsOfService"><span class="lang-en">Years of Service in Health Sector</span><span class="lang-km">ឆ្នាំបម្រើការងារក្នុងវិស័យសុខាភិបាល</span> <span class="required">*</span></label><select id="yearsOfService" required><option value="" data-en="-- Please select --" data-km="-- សូមជ្រើសរើស --">-- Please select --</option><option value="less_than_1" data-en="Less than 1 year" data-km="តិចជាង ១ ឆ្នាំ">Less than 1 year</option><option value="1-3" data-en="1 – 3 years" data-km="១ – ៣ ឆ្នាំ">1 – 3 years</option><option value="4-7" data-en="4 – 7 years" data-km="៤ – ៧ ឆ្នាំ">4 – 7 years</option><option value="8-15" data-en="8 – 15 years" data-km="៨ – ១៥ ឆ្នាំ">8 – 15 years</option><option value="16-25" data-en="16 – 25 years" data-km="១៦ – ២៥ ឆ្នាំ">16 – 25 years</option><option value="26+" data-en="26 years and above" data-km="២៦ ឆ្នាំឡើង">26 years and above</option></select></div>
+                <div class="form-group"><label for="positionCategory"><span class="lang-en">Position Category</span><span class="lang-km">ប្រភេទមុខតំណែង</span> <span class="required">*</span></label><select id="positionCategory" required><option value="" data-en="-- Please select --" data-km="-- សូមជ្រើសរើស --">-- Please select --</option><option value="medical_doctor" data-en="Medical Doctor" data-km="វេជ្ជបណ្ឌិត">Medical Doctor</option><option value="nurse" data-en="Nurse / Midwife" data-km="គិលានុបដ្ឋាក / ឆ្មប">Nurse / Midwife</option><option value="pharmacist" data-en="Pharmacist" data-km="ឱសថការី">Pharmacist</option><option value="lab_technician" data-en="Laboratory Technician" data-km="អ្នកបច្ចេកទេសមន្ទីរពិសោធន៍">Laboratory Technician</option><option value="radiographer" data-en="Radiographer" data-km="អ្នកថតកាំរស្មី">Radiographer</option><option value="dentist" data-en="Dentist / Dental Staff" data-km="ទន្តបណ្ឌិត / បុគ្គលិកទន្តសាស្ត្រ">Dentist / Dental Staff</option><option value="admin_staff" data-en="Administrative Staff" data-km="បុគ្គលិករដ្ឋបាល">Administrative Staff</option><option value="finance_staff" data-en="Finance / Audit Staff" data-km="បុគ្គលិកហិរញ្ញវត្ថុ / សវនកម្ម">Finance / Audit Staff</option><option value="public_health" data-en="Public Health Officer" data-km="មន្ត្រីសុខភាពសាធារណៈ">Public Health Officer</option><option value="disease_control" data-en="Disease Prevention & Control Staff" data-km="បុគ្គលិកបង្ការ និងគ្រប់គ្រងជំងឺ">Disease Prevention & Control Staff</option><option value="support_staff" data-en="Support Staff (Cleaner, Driver, Security)" data-km="បុគ្គលិកគាំទ្រ (អ្នកបោសសម្អាត អ្នកបើកបរ សន្តិសុខ)">Support Staff (Cleaner, Driver, Security)</option><option value="other" data-en="Other" data-km="ផ្សេងទៀត">Other</option></select></div>
+                <div class="btn-row" style="justify-content:space-between;"><button class="btn btn-secondary" onclick="goToSection(0)">← <span class="lang-en">Back</span><span class="lang-km">ត្រឡប់ក្រោយ</span></button><button class="btn btn-primary" onclick="goToSection(2)"><span class="lang-en">Next</span><span class="lang-km">បន្ទាប់</span> →</button></div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════ -->
+        <!-- SECTION 2: ORGANIZATION -->
+        <!-- ═══════════════════════════════════ -->
+        <div class="section" data-section="2" id="section2">
+            <div class="card">
+                <h2><span class="icon">🏥</span><span class="lang-en">Your Workplace / Organization</span><span class="lang-km">កន្លែងធ្វើការ / អង្គភាពរបស់អ្នក</span></h2>
+                <p class="subtitle"><span class="lang-en">Select the facility or office where you primarily work.</span><span class="lang-km">ជ្រើសរើសមណ្ឌល ឬការិយាល័យដែលអ្នកធ្វើការជាចម្បង។</span></p>
+                <div class="form-group"><label for="orgType"><span class="lang-en">Organization Type</span><span class="lang-km">ប្រភេទអង្គភាព</span> <span class="required">*</span></label><select id="orgType" required onchange="updateOrgDetails()"><option value="" data-en="-- Please select --" data-km="-- សូមជ្រើសរើស --">-- Please select --</option><option value="phd_office" data-en="Provincial Health Department (PHD) Office" data-km="ការិយាល័យមន្ទីរសុខាភិបាលខេត្ត">Provincial Health Department (PHD) Office</option><option value="operational_district" data-en="Operational District (OD) Office" data-km="ការិយាល័យស្រុកប្រតិបត្តិ">Operational District (OD) Office</option><option value="referral_hospital" data-en="Referral Hospital" data-km="មន្ទីរពេទ្យបង្អែក">Referral Hospital</option><option value="health_center" data-en="Health Center" data-km="មណ្ឌលសុខភាព">Health Center</option><option value="health_post" data-en="Health Post" data-km="ប៉ុស្តិ៍សុខភាព">Health Post</option></select></div>
+                <!-- (sub-selects for PHD Office, OD, Hospital, Health Center, Health Post – identical to previous version, kept for brevity but fully included in the final file) -->
+                <!-- I will include them fully in the final answer to avoid any omission -->
+                <div class="form-group" id="phdOfficeGroup" style="display:none;"><label for="phdOffice"><span class="lang-en">PHD Office</span><span class="lang-km">ការិយាល័យមន្ទីរសុខាភិបាល</span> <span class="required">*</span></label><select id="phdOffice"><option value="" data-en="-- Please select --" data-km="-- សូមជ្រើសរើស --">-- Please select --</option><option value="administrative_office" data-en="Administrative Office" data-km="ការិយាល័យរដ្ឋបាល">Administrative Office</option><option value="disease_prevention_control" data-en="Disease Prevention & Control Office" data-km="ការិយាល័យបង្ការ និងគ្រប់គ្រងជំងឺ">Disease Prevention & Control Office</option><option value="audit_office" data-en="Audit Office" data-km="ការិយាល័យសវនកម្ម">Audit Office</option></select></div>
+                <div class="form-group" id="odOfficeGroup" style="display:none;"><label for="odOffice"><span class="lang-en">Operational District</span><span class="lang-km">ស្រុកប្រតិបត្តិ</span> <span class="required">*</span></label><select id="odOffice"><option value="" data-en="-- Please select --" data-km="-- សូមជ្រើសរើស --">-- Please select --</option><option value="od_kampong_chhnang" data-en="Kampong Chhnang Operational District" data-km="ស្រុកប្រតិបត្តិកំពង់ឆ្នាំង">Kampong Chhnang Operational District</option><option value="od_kampong_tralach" data-en="Kampong Tralach Operational District" data-km="ស្រុកប្រតិបត្តិកំពង់ត្រឡាច">Kampong Tralach Operational District</option><option value="od_boribo" data-en="Boribo Operational District" data-km="ស្រុកប្រតិបត្តិបរិបូណ៌">Boribo Operational District</option></select></div>
+                <div class="form-group" id="hospitalGroup" style="display:none;"><label for="hospital"><span class="lang-en">Referral Hospital</span><span class="lang-km">មន្ទីរពេទ្យបង្អែក</span> <span class="required">*</span></label><select id="hospital"><option value="" data-en="-- Please select --" data-km="-- សូមជ្រើសរើស --">-- Please select --</option><option value="kampong_chhnang_provincial_hospital" data-en="Kampong Chhnang Provincial Referral Hospital" data-km="មន្ទីរពេទ្យបង្អែកខេត្តកំពង់ឆ្នាំង">Kampong Chhnang Provincial Referral Hospital</option><option value="kampong_tralach_hospital" data-en="Kampong Tralach Referral Hospital" data-km="មន្ទីរពេទ្យបង្អែកកំពង់ត្រឡាច">Kampong Tralach Referral Hospital</option><option value="boribo_hospital" data-en="Boribo Referral Hospital" data-km="មន្ទីរពេទ្យបង្អែកបរិបូណ៌">Boribo Referral Hospital</option></select></div>
+                <div class="form-group" id="healthCenterGroup" style="display:none;"><label for="healthCenter"><span class="lang-en">Health Center</span><span class="lang-km">មណ្ឌលសុខភាព</span> <span class="required">*</span></label><select id="healthCenter"><option value="" data-en="-- Please select --" data-km="-- សូមជ្រើសរើស --">-- Please select --</option><optgroup label="Kampong Chhnang OD – Health Centers"><option value="hc_phsar_chhnang" data-en="Phsar Chhnang Health Center" data-km="មណ្ឌលសុខភាពផ្សារឆ្នាំង">Phsar Chhnang Health Center</option><option value="hc_kampong_chhnang" data-en="Kampong Chhnang Health Center" data-km="មណ្ឌលសុខភាពកំពង់ឆ្នាំង">Kampong Chhnang Health Center</option><option value="hc_khsam" data-en="Khsam Health Center" data-km="មណ្ឌលសុខភាពខ្សាម">Khsam Health Center</option><option value="hc_pher" data-en="Ph'er Health Center" data-km="មណ្ឌលសុខភាពផ្អើរ">Ph'er Health Center</option><option value="hc_chhnok_tru" data-en="Chhnok Tru Health Center" data-km="មណ្ឌលសុខភាពឆ្នុកទ្រូ">Chhnok Tru Health Center</option><option value="hc_rolea_bier" data-en="Rolea B'ier Health Center" data-km="មណ្ឌលសុខភាពរលាប្អៀរ">Rolea B'ier Health Center</option><option value="hc_svay_chrum" data-en="Svay Chrum Health Center" data-km="មណ្ឌលសុខភាពស្វាយជ្រុំ">Svay Chrum Health Center</option><option value="hc_tuek_hout" data-en="Tuek Hout Health Center" data-km="មណ្ឌលសុខភាពទឹកហូត">Tuek Hout Health Center</option><option value="hc_andoung_snay" data-en="Andoung Snay Health Center" data-km="មណ្ឌលសុខភាពអណ្ដូងស្នាយ">Andoung Snay Health Center</option><option value="hc_kampong_leng" data-en="Kampong Leng Health Center" data-km="មណ្ឌលសុខភាពកំពង់លេង">Kampong Leng Health Center</option><option value="hc_chol_kiri" data-en="Chol Kiri Health Center" data-km="មណ្ឌលសុខភាពជលគីរី">Chol Kiri Health Center</option><option value="hc_kampong_os" data-en="Kampong Os Health Center" data-km="មណ្ឌលសុខភាពកំពង់អុស">Kampong Os Health Center</option><option value="hc_prey_khsam" data-en="Prey Khsam Health Center" data-km="មណ្ឌលសុខភាពព្រៃខ្សាម">Prey Khsam Health Center</option><option value="hc_srae_thmei" data-en="Srae Thmei Health Center" data-km="មណ្ឌលសុខភាពស្រែថ្មី">Srae Thmei Health Center</option><option value="hc_trapeang_chan" data-en="Trapeang Chan Health Center" data-km="មណ្ឌលសុខភាពត្រពាំងចាន់">Trapeang Chan Health Center</option></optgroup><optgroup label="Kampong Tralach OD – Health Centers"><option value="hc_kampong_tralach" data-en="Kampong Tralach Health Center" data-km="មណ្ឌលសុខភាពកំពង់ត្រឡាច">Kampong Tralach Health Center</option><option value="hc_ta_ches" data-en="Ta Ches Health Center" data-km="មណ្ឌលសុខភាពតាជេស">Ta Ches Health Center</option><option value="hc_thma_edth" data-en="Thma Edth Health Center" data-km="មណ្ឌលសុខភាពថ្មឥដ្ឋ">Thma Edth Health Center</option><option value="hc_sameakki_mean_chey" data-en="Sameakki Mean Chey Health Center" data-km="មណ្ឌលសុខភាពសាមគ្គីមានជ័យ">Sameakki Mean Chey Health Center</option><option value="hc_tuek_phos" data-en="Tuek Phos Health Center" data-km="មណ្ឌលសុខភាពទឹកផុស">Tuek Phos Health Center</option><option value="hc_pek_beng" data-en="Pek Beng Health Center" data-km="មណ្ឌលសុខភាពពេកបេង">Pek Beng Health Center</option><option value="hc_ampil_teuk" data-en="Ampil Teuk Health Center" data-km="មណ្ឌលសុខភាពអំពិលទឹក">Ampil Teuk Health Center</option><option value="hc_kbal_teuk" data-en="Kbal Teuk Health Center" data-km="មណ្ឌលសុខភាពក្បាលទឹក">Kbal Teuk Health Center</option><option value="hc_ou_rong" data-en="Ou Rong Health Center" data-km="មណ្ឌលសុខភាពអូររូង">Ou Rong Health Center</option><option value="hc_seda" data-en="Seda Health Center" data-km="មណ្ឌលសុខភាពសេដា">Seda Health Center</option><option value="hc_tang_krasang" data-en="Tang Krasang Health Center" data-km="មណ្ឌលសុខភាពតាំងក្រសាំង">Tang Krasang Health Center</option><option value="hc_prey_pouch" data-en="Prey Pouch Health Center" data-km="មណ្ឌលសុខភាពព្រៃពោច">Prey Pouch Health Center</option><option value="hc_srae_sdok" data-en="Srae Sdok Health Center" data-km="មណ្ឌលសុខភាពស្រែស្ដុក">Srae Sdok Health Center</option><option value="hc_krang_skear" data-en="Krang Skear Health Center" data-km="មណ្ឌលសុខភាពក្រាំងស្គារ">Krang Skear Health Center</option><option value="hc_chrey_bak" data-en="Chrey Bak Health Center" data-km="មណ្ឌលសុខភាពជ្រៃបាក់">Chrey Bak Health Center</option></optgroup><optgroup label="Boribo OD – Health Centers"><option value="hc_boribo" data-en="Boribo Health Center" data-km="មណ្ឌលសុខភាពបរិបូណ៌">Boribo Health Center</option><option value="hc_kampong_ous" data-en="Kampong Ous Health Center" data-km="មណ្ឌលសុខភាពកំពង់អុស">Kampong Ous Health Center</option><option value="hc_phnom_kravanh" data-en="Phnom Kravanh Health Center" data-km="មណ្ឌលសុខភាពភ្នំក្រវាញ">Phnom Kravanh Health Center</option><option value="hc_trapeang_sab" data-en="Trapeang Sab Health Center" data-km="មណ្ឌលសុខភាពត្រពាំងសាប">Trapeang Sab Health Center</option><option value="hc_meun_chrey" data-en="Meun Chrey Health Center" data-km="មណ្ឌលសុខភាពមឿងជ្រៃ">Meun Chrey Health Center</option><option value="hc_sopheas" data-en="Sopheas Health Center" data-km="មណ្ឌលសុខភាពសុភាស">Sopheas Health Center</option><option value="hc_ou_rung" data-en="Ou Rung Health Center" data-km="មណ្ឌលសុខភាពអូររូង">Ou Rung Health Center</option><option value="hc_santuk" data-en="Santuk Health Center" data-km="មណ្ឌលសុខភាពសន្ទុក">Santuk Health Center</option><option value="hc_chheu_teal" data-en="Chheu Teal Health Center" data-km="មណ្ឌលសុខភាពឈើទាល">Chheu Teal Health Center</option><option value="hc_kaoh_chiveang" data-en="Kaoh Chiveang Health Center" data-km="មណ្ឌលសុខភាពកោះជីវាំង">Kaoh Chiveang Health Center</option><option value="hc_ponley" data-en="Ponley Health Center" data-km="មណ្ឌលសុខភាពពន្លៃ">Ponley Health Center</option><option value="hc_prey_kdei" data-en="Prey Kdei Health Center" data-km="មណ្ឌលសុខភាពព្រៃក្ដី">Prey Kdei Health Center</option><option value="hc_srang" data-en="Srang Health Center" data-km="មណ្ឌលសុខភាពស្រាង">Srang Health Center</option></optgroup></select></div>
+                <div class="form-group" id="healthPostGroup" style="display:none;"><label for="healthPost"><span class="lang-en">Health Post</span><span class="lang-km">ប៉ុស្តិ៍សុខភាព</span> <span class="required">*</span></label><select id="healthPost"><option value="" data-en="-- Please select --" data-km="-- សូមជ្រើសរើស --">-- Please select --</option><option value="hp_dangkor" data-en="Dangkor Health Post" data-km="ប៉ុស្តិ៍សុខភាពដង្កោ">Dangkor Health Post</option><option value="hp_koh_khsach" data-en="Koh Khsach Health Post" data-km="ប៉ុស្តិ៍សុខភាពកោះខ្សាច់">Koh Khsach Health Post</option></select></div>
+                <div class="btn-row" style="justify-content:space-between;"><button class="btn btn-secondary" onclick="goToSection(1)">← <span class="lang-en">Back</span><span class="lang-km">ត្រឡប់ក្រោយ</span></button><button class="btn btn-primary" onclick="goToSection(3)"><span class="lang-en">Next</span><span class="lang-km">បន្ទាប់</span> →</button></div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════ -->
+        <!-- SECTION 3: JOB SATISFACTION -->
+        <!-- ═══════════════════════════════════ -->
+        <div class="section" data-section="3" id="section3">
+            <div class="card">
+                <h2><span class="icon">💼</span> <span class="lang-en">Job Satisfaction</span><span class="lang-km">ការពេញចិត្តការងារ</span></h2>
+                <p class="subtitle"><span class="lang-en">Please rate your level of agreement. (1 = Strongly Disagree, 5 = Strongly Agree)</span><span class="lang-km">សូមវាយតម្លៃកម្រិតការយល់ព្រមរបស់អ្នក។ (១ = មិនយល់ព្រមខ្លាំង, ៥ = យល់ព្រមខ្លាំង)</span></p>
+                <div class="likert-group"><p class="q-text"><span class="lang-en">I find my work meaningful and fulfilling.</span><span class="lang-km">ខ្ញុំយល់ថាការងាររបស់ខ្ញុំមានអត្ថន័យ និងធ្វើឲ្យខ្ញុំពេញចិត្ត។</span></p><div class="likert-options"><input type="radio" name="q3_1" id="q3_1_1" value="1"><label class="radio-btn" for="q3_1_1">1</label><input type="radio" name="q3_1" id="q3_1_2" value="2"><label class="radio-btn" for="q3_1_2">2</label><input type="radio" name="q3_1" id="q3_1_3" value="3"><label class="radio-btn" for="q3_1_3">3</label><input type="radio" name="q3_1" id="q3_1_4" value="4"><label class="radio-btn" for="q3_1_4">4</label><input type="radio" name="q3_1" id="q3_1_5" value="5"><label class="radio-btn" for="q3_1_5">5</label></div><div class="likert-labels"><span><span class="lang-en">Strongly<br>Disagree</span><span class="lang-km">មិនយល់ព្រម<br>ខ្លាំង</span></span><span></span><span></span><span></span><span><span class="lang-en">Strongly<br>Agree</span><span class="lang-km">យល់ព្រម<br>ខ្លាំង</span></span></div></div>
+                <div class="likert-group"><p class="q-text"><span class="lang-en">I am satisfied with my current role and responsibilities.</span><span class="lang-km">ខ្ញុំពេញចិត្តនឹងតួនាទី និងការទទួលខុសត្រូវបច្ចុប្បន្នរបស់ខ្ញុំ។</span></p><div class="likert-options"><input type="radio" name="q3_2" id="q3_2_1" value="1"><label class="radio-btn" for="q3_2_1">1</label><input type="radio" name="q3_2" id="q3_2_2" value="2"><label class="radio-btn" for="q3_2_2">2</label><input type="radio" name="q3_2" id="q3_2_3" value="3"><label class="radio-btn" for="q3_2_3">3</label><input type="radio" name="q3_2" id="q3_2_4" value="4"><label class="radio-btn" for="q3_2_4">4</label><input type="radio" name="q3_2" id="q3_2_5" value="5"><label class="radio-btn" for="q3_2_5">5</label></div><div class="likert-labels"><span><span class="lang-en">Strongly<br>Disagree</span><span class="lang-km">មិនយល់ព្រម<br>ខ្លាំង</span></span><span></span><span></span><span></span><span><span class="lang-en">Strongly<br>Agree</span><span class="lang-km">យល់ព្រម<br>ខ្លាំង</span></span></div></div>
+                <div class="likert-group"><p class="q-text"><span class="lang-en">I would recommend this workplace to other health professionals.</span><span class="lang-km">ខ្ញុំនឹងណែនាំកន្លែងធ្វើការនេះដល់អ្នកជំនាញសុខភាពដទៃទៀត។</span></p><div class="likert-options"><input type="radio" name="q3_3" id="q3_3_1" value="1"><label class="radio-btn" for="q3_3_1">1</label><input type="radio" name="q3_3" id="q3_3_2" value="2"><label class="radio-btn" for="q3_3_2">2</label><input type="radio" name="q3_3" id="q3_3_3" value="3"><label class="radio-btn" for="q3_3_3">3</label><input type="radio" name="q3_3" id="q3_3_4" value="4"><label class="radio-btn" for="q3_3_4">4</label><input type="radio" name="q3_3" id="q3_3_5" value="5"><label class="radio-btn" for="q3_3_5">5</label></div><div class="likert-labels"><span><span class="lang-en">Strongly<br>Disagree</span><span class="lang-km">មិនយល់ព្រម<br>ខ្លាំង</span></span><span></span><span></span><span></span><span><span class="lang-en">Strongly<br>Agree</span><span class="lang-km">យល់ព្រម<br>ខ្លាំង</span></span></div></div>
+                <div class="likert-group"><p class="q-text"><span class="lang-en">I feel motivated to perform well in my job every day.</span><span class="lang-km">ខ្ញុំមានកម្លាំងចិត្តក្នុងការបំពេញការងារប្រចាំថ្ងៃរបស់ខ្ញុំឲ្យបានល្អ។</span></p><div class="likert-options"><input type="radio" name="q3_4" id="q3_4_1" value="1"><label class="radio-btn" for="q3_4_1">1</label><input type="radio" name="q3_4" id="q3_4_2" value="2"><label class="radio-btn" for="q3_4_2">2</label><input type="radio" name="q3_4" id="q3_4_3" value="3"><label class="radio-btn" for="q3_4_3">3</label><input type="radio" name="q3_4" id="q3_4_4" value="4"><label class="radio-btn" for="q3_4_4">4</label><input type="radio" name="q3_4" id="q3_4_5" value="5"><label class="radio-btn" for="q3_4_5">5</label></div><div class="likert-labels"><span><span class="lang-en">Strongly<br>Disagree</span><span class="lang-km">មិនយល់ព្រម<br>ខ្លាំង</span></span><span></span><span></span><span></span><span><span class="lang-en">Strongly<br>Agree</span><span class="lang-km">យល់ព្រម<br>ខ្លាំង</span></span></div></div>
+                <div class="likert-group"><p class="q-text"><span class="lang-en">I see a clear path for career growth in my current organization.</span><span class="lang-km">ខ្ញុំមើលឃើញផ្លូវអភិវឌ្ឍន៍អាជីពយ៉ាងច្បាស់នៅក្នុងអង្គភាពបច្ចុប្បន្ន។</span></p><div class="likert-options"><input type="radio" name="q3_5" id="q3_5_1" value="1"><label class="radio-btn" for="q3_5_1">1</label><input type="radio" name="q3_5" id="q3_5_2" value="2"><label class="radio-btn" for="q3_5_2">2</label><input type="radio" name="q3_5" id="q3_5_3" value="3"><label class="radio-btn" for="q3_5_3">3</label><input type="radio" name="q3_5" id="q3_5_4" value="4"><label class="radio-btn" for="q3_5_4">4</label><input type="radio" name="q3_5" id="q3_5_5" value="5"><label class="radio-btn" for="q3_5_5">5</label></div><div class="likert-labels"><span><span class="lang-en">Strongly<br>Disagree</span><span class="lang-km">មិនយល់ព្រម<br>ខ្លាំង</span></span><span></span><span></span><span></span><span><span class="lang-en">Strongly<br>Agree</span><span class="lang-km">យល់ព្រម<br>ខ្លាំង</span></span></div></div>
+                <div class="btn-row" style="justify-content:space-between;"><button class="btn btn-secondary" onclick="goToSection(2)">← <span class="lang-en">Back</span><span class="lang-km">ត្រឡប់ក្រោយ</span></button><button class="btn btn-primary" onclick="goToSection(4)"><span class="lang-en">Next</span><span class="lang-km">បន្ទាប់</span> →</button></div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════ -->
+        <!-- SECTION 4: WORK ENVIRONMENT -->
+        <!-- ═══════════════════════════════════ -->
+        <div class="section" data-section="4" id="section4">
+            <div class="card">
+                <h2><span class="icon">🏢</span> <span class="lang-en">Work Environment & Management</span><span class="lang-km">បរិយាកាសការងារ និងការគ្រប់គ្រង</span></h2>
+                <p class="subtitle"><span class="lang-en">Please rate your level of agreement. (1 = Strongly Disagree, 5 = Strongly Agree)</span><span class="lang-km">សូមវាយតម្លៃកម្រិតការយល់ព្រមរបស់អ្នក។ (១ = មិនយល់ព្រមខ្លាំង, ៥ = យល់ព្រមខ្លាំង)</span></p>
+                <div class="likert-group"><p class="q-text"><span class="lang-en">My physical work environment is safe and comfortable.</span><span class="lang-km">បរិយាកាសការងាររូបវន្តរបស់ខ្ញុំមានសុវត្ថិភាព និងផាសុខភាព។</span></p><div class="likert-options"><input type="radio" name="q4_1" id="q4_1_1" value="1"><label class="radio-btn" for="q4_1_1">1</label><input type="radio" name="q4_1" id="q4_1_2" value="2"><label class="radio-btn" for="q4_1_2">2</label><input type="radio" name="q4_1" id="q4_1_3" value="3"><label class="radio-btn" for="q4_1_3">3</label><input type="radio" name="q4_1" id="q4_1_4" value="4"><label class="radio-btn" for="q4_1_4">4</label><input type="radio" name="q4_1" id="q4_1_5" value="5"><label class="radio-btn" for="q4_1_5">5</label></div><div class="likert-labels"><span><span class="lang-en">Strongly<br>Disagree</span><span class="lang-km">មិនយល់ព្រម<br>ខ្លាំង</span></span><span></span><span></span><span></span><span><span class="lang-en">Strongly<br>Agree</span><span class="lang-km">យល់ព្រម<br>ខ្លាំង</span></span></div></div>
+                <div class="likert-group"><p class="q-text"><span class="lang-en">I have adequate equipment and supplies to do my job effectively.</span><span class="lang-km">ខ្ញុំមានឧបករណ៍ និងសម្ភារគ្រប់គ្រាន់ដើម្បីបំពេញការងារប្រកបដោយប្រសិទ្ធភាព។</span></p><div class="likert-options"><input type="radio" name="q4_2" id="q4_2_1" value="1"><label class="radio-btn" for="q4_2_1">1</label><input type="radio" name="q4_2" id="q4_2_2" value="2"><label class="radio-btn" for="q4_2_2">2</label><input type="radio" name="q4_2" id="q4_2_3" value="3"><label class="radio-btn" for="q4_2_3">3</label><input type="radio" name="q4_2" id="q4_2_4" value="4"><label class="radio-btn" for="q4_2_4">4</label><input type="radio" name="q4_2" id="q4_2_5" value="5"><label class="radio-btn" for="q4_2_5">5</label></div><div class="likert-labels"><span><span class="lang-en">Strongly<br>Disagree</span><span class="lang-km">មិនយល់ព្រម<br>ខ្លាំង</span></span><span></span><span></span><span></span><span><span class="lang-en">Strongly<br>Agree</span><span class="lang-km">យល់ព្រម<br>ខ្លាំង</span></span></div></div>
+                <div class="likert-group"><p class="q-text"><span class="lang-en">My supervisor/manager provides clear guidance and constructive feedback.</span><span class="lang-km">អ្នកគ្រប់គ្រងរបស់ខ្ញុំផ្តល់ការណែនាំច្បាស់លាស់ និងមតិស្ថាបនា។</span></p><div class="likert-options"><input type="radio" name="q4_3" id="q4_3_1" value="1"><label class="radio-btn" for="q4_3_1">1</label><input type="radio" name="q4_3" id="q4_3_2" value="2"><label class="radio-btn" for="q4_3_2">2</label><input type="radio" name="q4_3" id="q4_3_3" value="3"><label class="radio-btn" for="q4_3_3">3</label><input type="radio" name="q4_3" id="q4_3_4" value="4"><label class="radio-btn" for="q4_3_4">4</label><input type="radio" name="q4_3" id="q4_3_5" value="5"><label class="radio-btn" for="q4_3_5">5</label></div><div class="likert-labels"><span><span class="lang-en">Strongly<br>Disagree</span><span class="lang-km">មិនយល់ព្រម<br>ខ្លាំង</span></span><span></span><span></span><span></span><span><span class="lang-en">Strongly<br>Agree</span><span class="lang-km">យល់ព្រម<br>ខ្លាំង</span></span></div></div>
+                <div class="likert-group"><p class="q-text"><span class="lang-en">Management values staff opinions and acts on feedback.</span><span class="lang-km">ថ្នាក់គ្រប់គ្រងឲ្យតម្លៃលើមតិរបស់បុគ្គលិក ហើយអនុវត្តតាមមតិទាំងនោះ។</span></p><div class="likert-options"><input type="radio" name="q4_4" id="q4_4_1" value="1"><label class="radio-btn" for="q4_4_1">1</label><input type="radio" name="q4_4" id="q4_4_2" value="2"><label class="radio-btn" for="q4_4_2">2</label><input type="radio" name="q4_4" id="q4_4_3" value="3"><label class="radio-btn" for="q4_4_3">3</label><input type="radio" name="q4_4" id="q4_4_4" value="4"><label class="radio-btn" for="q4_4_4">4</label><input type="radio" name="q4_4" id="q4_4_5" value="5"><label class="radio-btn" for="q4_4_5">5</label></div><div class="likert-labels"><span><span class="lang-en">Strongly<br>Disagree</span><span class="lang-km">មិនយល់ព្រម<br>ខ្លាំង</span></span><span></span><span></span><span></span><span><span class="lang-en">Strongly<br>Agree</span><span class="lang-km">យល់ព្រម<br>ខ្លាំង</span></span></div></div>
+                <div class="likert-group"><p class="q-text"><span class="lang-en">There is good teamwork and collaboration among colleagues.</span><span class="lang-km">មានការងារជាក្រុមនិងការសហការល្អក្នុងចំណោមសហការី។</span></p><div class="likert-options"><input type="radio" name="q4_5" id="q4_5_1" value="1"><label class="radio-btn" for="q4_5_1">1</label><input type="radio" name="q4_5" id="q4_5_2" value="2"><label class="radio-btn" for="q4_5_2">2</label><input type="radio" name="q4_5" id="q4_5_3" value="3"><label class="radio-btn" for="q4_5_3">3</label><input type="radio" name="q4_5" id="q4_5_4" value="4"><label class="radio-btn" for="q4_5_4">4</label><input type="radio" name="q4_5" id="q4_5_5" value="5"><label class="radio-btn" for="q4_5_5">5</label></div><div class="likert-labels"><span><span class="lang-en">Strongly<br>Disagree</span><span class="lang-km">មិនយល់ព្រម<br>ខ្លាំង</span></span><span></span><span></span><span></span><span><span class="lang-en">Strongly<br>Agree</span><span class="lang-km">យល់ព្រម<br>ខ្លាំង</span></span></div></div>
+                <div class="btn-row" style="justify-content:space-between;"><button class="btn btn-secondary" onclick="goToSection(3)">← <span class="lang-en">Back</span><span class="lang-km">ត្រឡប់ក្រោយ</span></button><button class="btn btn-primary" onclick="goToSection(5)"><span class="lang-en">Next</span><span class="lang-km">បន្ទាប់</span> →</button></div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════ -->
+        <!-- SECTION 5: WELL‑BEING -->
+        <!-- ═══════════════════════════════════ -->
+        <div class="section" data-section="5" id="section5">
+            <div class="card">
+                <h2><span class="icon">🌱</span> <span class="lang-en">Well-being, Development & Communication</span><span class="lang-km">សុខុមាលភាព ការអភិវឌ្ឍ និងទំនាក់ទំនង</span></h2>
+                <p class="subtitle"><span class="lang-en">Please rate your level of agreement. (1 = Strongly Disagree, 5 = Strongly Agree)</span><span class="lang-km">សូមវាយតម្លៃកម្រិតការយល់ព្រមរបស់អ្នក។ (១ = មិនយល់ព្រមខ្លាំង, ៥ = យល់ព្រមខ្លាំង)</span></p>
+                <div class="likert-group"><p class="q-text"><span class="lang-en">I have access to adequate training and professional development opportunities.</span><span class="lang-km">ខ្ញុំមានឱកាសទទួលការបណ្តុះបណ្តាល និងអភិវឌ្ឍន៍វិជ្ជាជីវៈបានគ្រប់គ្រាន់។</span></p><div class="likert-options"><input type="radio" name="q5_1" id="q5_1_1" value="1"><label class="radio-btn" for="q5_1_1">1</label><input type="radio" name="q5_1" id="q5_1_2" value="2"><label class="radio-btn" for="q5_1_2">2</label><input type="radio" name="q5_1" id="q5_1_3" value="3"><label class="radio-btn" for="q5_1_3">3</label><input type="radio" name="q5_1" id="q5_1_4" value="4"><label class="radio-btn" for="q5_1_4">4</label><input type="radio" name="q5_1" id="q5_1_5" value="5"><label class="radio-btn" for="q5_1_5">5</label></div><div class="likert-labels"><span><span class="lang-en">Strongly<br>Disagree</span><span class="lang-km">មិនយល់ព្រម<br>ខ្លាំង</span></span><span></span><span></span><span></span><span><span class="lang-en">Strongly<br>Agree</span><span class="lang-km">យល់ព្រម<br>ខ្លាំង</span></span></div></div>
+                <div class="likert-group"><p class="q-text"><span class="lang-en">My workload is manageable and does not cause excessive stress.</span><span class="lang-km">បន្ទុកការងាររបស់ខ្ញុំអាចគ្រប់គ្រងបាន ហើយមិនបង្កភាពតានតឹងខ្លាំង។</span></p><div class="likert-options"><input type="radio" name="q5_2" id="q5_2_1" value="1"><label class="radio-btn" for="q5_2_1">1</label><input type="radio" name="q5_2" id="q5_2_2" value="2"><label class="radio-btn" for="q5_2_2">2</label><input type="radio" name="q5_2" id="q5_2_3" value="3"><label class="radio-btn" for="q5_2_3">3</label><input type="radio" name="q5_2" id="q5_2_4" value="4"><label class="radio-btn" for="q5_2_4">4</label><input type="radio" name="q5_2" id="q5_2_5" value="5"><label class="radio-btn" for="q5_2_5">5</label></div><div class="likert-labels"><span><span class="lang-en">Strongly<br>Disagree</span><span class="lang-km">មិនយល់ព្រម<br>ខ្លាំង</span></span><span></span><span></span><span></span><span><span class="lang-en">Strongly<br>Agree</span><span class="lang-km">យល់ព្រម<br>ខ្លាំង</span></span></div></div>
+                <div class="likert-group"><p class="q-text"><span class="lang-en">I am fairly compensated (salary and benefits) for the work I do.</span><span class="lang-km">ខ្ញុំទទួលបានប្រាក់ខែ និងអត្ថប្រយោជន៍ដោយយុត្តិធម៌សម្រាប់ការងារដែលខ្ញុំធ្វើ។</span></p><div class="likert-options"><input type="radio" name="q5_3" id="q5_3_1" value="1"><label class="radio-btn" for="q5_3_1">1</label><input type="radio" name="q5_3" id="q5_3_2" value="2"><label class="radio-btn" for="q5_3_2">2</label><input type="radio" name="q5_3" id="q5_3_3" value="3"><label class="radio-btn" for="q5_3_3">3</label><input type="radio" name="q5_3" id="q5_3_4" value="4"><label class="radio-btn" for="q5_3_4">4</label><input type="radio" name="q5_3" id="q5_3_5" value="5"><label class="radio-btn" for="q5_3_5">5</label></div><div class="likert-labels"><span><span class="lang-en">Strongly<br>Disagree</span><span class="lang-km">មិនយល់ព្រម<br>ខ្លាំង</span></span><span></span><span></span><span></span><span><span class="lang-en">Strongly<br>Agree</span><span class="lang-km">យល់ព្រម<br>ខ្លាំង</span></span></div></div>
+                <div class="likert-group"><p class="q-text"><span class="lang-en">Organizational communication is transparent and timely.</span><span class="lang-km">ការទំនាក់ទំនងក្នុងអង្គភាពមានតម្លាភាព និងទាន់ពេលវេលា។</span></p><div class="likert-options"><input type="radio" name="q5_4" id="q5_4_1" value="1"><label class="radio-btn" for="q5_4_1">1</label><input type="radio" name="q5_4" id="q5_4_2" value="2"><label class="radio-btn" for="q5_4_2">2</label><input type="radio" name="q5_4" id="q5_4_3" value="3"><label class="radio-btn" for="q5_4_3">3</label><input type="radio" name="q5_4" id="q5_4_4" value="4"><label class="radio-btn" for="q5_4_4">4</label><input type="radio" name="q5_4" id="q5_4_5" value="5"><label class="radio-btn" for="q5_4_5">5</label></div><div class="likert-labels"><span><span class="lang-en">Strongly<br>Disagree</span><span class="lang-km">មិនយល់ព្រម<br>ខ្លាំង</span></span><span></span><span></span><span></span><span><span class="lang-en">Strongly<br>Agree</span><span class="lang-km">យល់ព្រម<br>ខ្លាំង</span></span></div></div>
+                <div class="likert-group"><p class="q-text"><span class="lang-en">I am proud of the quality of patient care we provide.</span><span class="lang-km">ខ្ញុំមានមោទនភាពចំពោះគុណភាពនៃការថែទាំអ្នកជំងឺដែលយើងផ្តល់។</span></p><div class="likert-options"><input type="radio" name="q5_5" id="q5_5_1" value="1"><label class="radio-btn" for="q5_5_1">1</label><input type="radio" name="q5_5" id="q5_5_2" value="2"><label class="radio-btn" for="q5_5_2">2</label><input type="radio" name="q5_5" id="q5_5_3" value="3"><label class="radio-btn" for="q5_5_3">3</label><input type="radio" name="q5_5" id="q5_5_4" value="4"><label class="radio-btn" for="q5_5_4">4</label><input type="radio" name="q5_5" id="q5_5_5" value="5"><label class="radio-btn" for="q5_5_5">5</label></div><div class="likert-labels"><span><span class="lang-en">Strongly<br>Disagree</span><span class="lang-km">មិនយល់ព្រម<br>ខ្លាំង</span></span><span></span><span></span><span></span><span><span class="lang-en">Strongly<br>Agree</span><span class="lang-km">យល់ព្រម<br>ខ្លាំង</span></span></div></div>
+                <div class="form-group" style="margin-top:24px;"><label for="openFeedback"><span class="lang-en">Additional Comments or Suggestions (Optional)</span><span class="lang-km">មតិយោបល់ ឬសំណូមពរបន្ថែម (ជម្រើស)</span></label><textarea id="openFeedback" rows="4" data-en-placeholder="Please share any additional thoughts, concerns, or suggestions for improvement..." data-km-placeholder="សូមចែករំលែកយោបល់ កង្វល់ ឬសំណើរបន្ថែមណាមួយសម្រាប់ការកែលម្អ..."></textarea></div>
+                <div class="btn-row" style="justify-content:space-between;"><button class="btn btn-secondary" onclick="goToSection(4)">← <span class="lang-en">Back</span><span class="lang-km">ត្រឡប់ក្រោយ</span></button><button class="btn btn-accent" onclick="submitSurvey()" type="button" id="submitBtn">✅ <span class="lang-en">Submit Survey</span><span class="lang-km">បញ្ជូនការស្ទង់មតិ</span></button></div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════ -->
+        <!-- SECTION 6: THANK YOU -->
+        <!-- ═══════════════════════════════════ -->
+        <div class="section" data-section="6" id="section6">
+            <div class="card thankyou-card" style="text-align:center; padding:48px 30px;">
+                <span style="font-size:5rem; display:block; margin-bottom:16px;">🙏</span>
+                <h2><span class="lang-en">Thank You for Your Feedback!</span><span class="lang-km">សូមអរគុណចំពោះមតិរបស់អ្នក!</span></h2>
+                <p><span class="lang-en">Your responses have been recorded successfully. The Provincial Health Department appreciates your time and honest input. Together, we can improve the health system for staff and patients alike.</span><span class="lang-km">ការឆ្លើយតបរបស់អ្នកត្រូវបានកត់ត្រាដោយជោគជ័យ។ មន្ទីរសុខាភិបាលខេត្តសូមថ្លែងអំណរគុណចំពោះពេលវេលា និងការបញ្ចេញមតិដ៏ស្មោះត្រង់របស់អ្នក។ រួមគ្នាយើងអាចកែលម្អប្រព័ន្ធសុខាភិបាលសម្រាប់ទាំងបុគ្គលិក និងអ្នកជំងឺ។</span></p>
+                <p style="margin-top:18px;font-size:0.85rem;color:#8899aa;"><span class="lang-en">If you have any concerns, please contact the Administrative Office.</span><span class="lang-km">ប្រសិនបើមានកង្វល់ សូមទាក់ទងការិយាល័យរដ្ឋបាល។</span></p>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════ -->
+        <!-- ADMIN REPORTS SECTION (hidden) -->
+        <!-- ═══════════════════════════════════ -->
+        <div class="section" data-section="admin" id="sectionAdmin" style="display:none;">
+            <div class="card">
+                <h2><span class="icon">📊</span> Admin Reports Dashboard</h2>
+                <p class="subtitle">View overall statistics and download detailed data.</p>
+                <div style="display:flex; gap:8px; margin-bottom:20px;">
+                    <button class="btn btn-primary btn-sm" id="btnOverall">Overall Summary</button>
+                    <button class="btn btn-secondary btn-sm" id="btnDetailed">Detailed Data</button>
+                    <button class="btn btn-accent btn-sm" id="btnLogout">Logout</button>
+                </div>
+                <!-- Overall Summary Table -->
+                <div id="overallReport" style="display:none;">
+                    <h3>Overall Satisfaction Summary</h3>
+                    <p>Average scores per question (1–5 scale). Total responses: <span id="totalResponses">0</span></p>
+                    <table class="report-table" id="overallTable">
+                        <thead><tr><th>Question</th><th>Average</th><th>Std Dev</th></tr></thead>
+                        <tbody></tbody>
+                    </table>
+                    <button class="btn btn-secondary btn-sm" id="downloadOverallCSV" style="margin-top:10px;">⬇ Download Overall CSV</button>
+                </div>
+                <!-- Detailed Data with Filters -->
+                <div id="detailedReport" style="display:none;">
+                    <h3>Detailed Response Data</h3>
+                    <div class="report-filter">
+                        <div class="form-group">
+                            <label>Organization Type</label>
+                            <select id="filterOrgType"><option value="">All</option></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Facility</label>
+                            <select id="filterFacility"><option value="">All</option></select>
+                        </div>
+                        <button class="btn btn-primary btn-sm" id="applyFilter">Apply</button>
+                    </div>
+                    <div id="detailedTableContainer" style="overflow-x:auto;"></div>
+                    <button class="btn btn-secondary btn-sm" id="downloadDetailedCSV" style="margin-top:10px;">⬇ Download Detailed CSV</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+        <span>© Kampong Chhnang Provincial Health Department</span> |
+        <a id="adminLink">Admin Login</a>
+    </div>
+
+    <!-- ADMIN LOGIN MODAL -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <h3>Admin Login</h3>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="adminPassword" placeholder="Enter admin password">
+            </div>
+            <div class="btn-row">
+                <button class="btn btn-primary" id="btnLoginSubmit">Login</button>
+                <button class="btn btn-secondary" id="btnLoginCancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST CONTAINER -->
+    <div id="toastContainer"></div>
+
+    <script>
+        (function() {
+            // ══════════════════════════════════════════
+            // HARDCODED GOOGLE APPS SCRIPT URL (UPDATED)
+            // ══════════════════════════════════════════
+            const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzeXCVrK-Spc2G3WoZNoyTOTojj-nwP8X9cuWO5F9R9vOiK6mG4dGtJlV1ORwR3VMQc/exec';
+            const ADMIN_API_KEY = 'KCH2024@dmin'; // must match API_KEY in GAS
+
+            let currentSection = 0;
+            let isSubmitting = false;
+            let currentLang = 'en';
+            let isAdmin = false;
+
+            const progressBar = document.getElementById('progressBar');
+            const progressPercent = document.getElementById('progressPercent');
+            const progressStep = document.getElementById('progressStep');
+            const submitBtn = document.getElementById('submitBtn');
+            const toastContainer = document.getElementById('toastContainer');
+            const loginModal = document.getElementById('loginModal');
+            const adminLink = document.getElementById('adminLink');
+            const sectionAdmin = document.getElementById('sectionAdmin');
+
+            // ══════════════════════════════════════════
+            // TRANSLATION DICTIONARY
+            // ══════════════════════════════════════════
+            const t = {
+                en: {
+                    section_labels: ['Welcome','Demographics','Organization','Job Satisfaction','Work Environment','Well-being & Feedback'],
+                    progress_section: 'Section', progress_of: 'of', progress_complete: 'Complete',
+                    validation_select_gender: 'Please select your gender.',
+                    validation_select_age: 'Please select your age range.',
+                    validation_select_service: 'Please select your years of service.',
+                    validation_select_position: 'Please select your position category.',
+                    validation_select_org: 'Please select your organization type.',
+                    validation_select_phd: 'Please select the PHD office.',
+                    validation_select_od: 'Please select the Operational District.',
+                    validation_select_hospital: 'Please select the referral hospital.',
+                    validation_select_hc: 'Please select the health center.',
+                    validation_select_hp: 'Please select the health post.',
+                    validation_likert_job: 'Please answer all Job Satisfaction questions (1–5).',
+                    validation_likert_env: 'Please answer all Work Environment questions (1–5).',
+                    validation_likert_well: 'Please answer all Well-being & Development questions (1–5).',
+                    submit_success: 'Survey submitted successfully! Thank you.',
+                    submit_btn_submitting: '⏳ Submitting...',
+                    submit_btn_default: '✅ Submit Survey'
+                },
+                km: {
+                    section_labels: ['ស្វាគមន៍','ប្រជាសាស្ត្រ','អង្គភាព','ការពេញចិត្តការងារ','បរិយាកាសការងារ','សុខុមាលភាព និងមតិ'],
+                    progress_section: 'ផ្នែក', progress_of: 'នៃ', progress_complete: 'បានបញ្ចប់',
+                    validation_select_gender: 'សូមជ្រើសរើសភេទរបស់អ្នក។',
+                    validation_select_age: 'សូមជ្រើសរើសចន្លោះអាយុ។',
+                    validation_select_service: 'សូមជ្រើសរើសឆ្នាំបម្រើការងារ។',
+                    validation_select_position: 'សូមជ្រើសរើសប្រភេទមុខតំណែង។',
+                    validation_select_org: 'សូមជ្រើសរើសប្រភេទអង្គភាព។',
+                    validation_select_phd: 'សូមជ្រើសរើសការិយាល័យមន្ទីរសុខាភិបាល។',
+                    validation_select_od: 'សូមជ្រើសរើសស្រុកប្រតិបត្តិ។',
+                    validation_select_hospital: 'សូមជ្រើសរើសមន្ទីរពេទ្យបង្អែក។',
+                    validation_select_hc: 'សូមជ្រើសរើសមណ្ឌលសុខភាព។',
+                    validation_select_hp: 'សូមជ្រើសរើសប៉ុស្តិ៍សុខភាព។',
+                    validation_likert_job: 'សូមឆ្លើយសំណួរការពេញចិត្តការងារទាំងអស់ (១–៥)។',
+                    validation_likert_env: 'សូមឆ្លើយសំណួរបរិយាកាសការងារទាំងអស់ (១–៥)។',
+                    validation_likert_well: 'សូមឆ្លើយសំណួរសុខុមាលភាព និងការអភិវឌ្ឍទាំងអស់ (១–៥)។',
+                    submit_success: 'បានបញ្ជូនការស្ទង់មតិដោយជោគជ័យ! សូមអរគុណ។',
+                    submit_btn_submitting: '⏳ កំពុងបញ្ជូន...',
+                    submit_btn_default: '✅ បញ្ជូនការស្ទង់មតិ'
+                }
+            };
+            function translate(key) { return t[currentLang][key] || key; }
+
+            // ══════════════════════════════════════════
+            // LANGUAGE SWITCH
+            // ══════════════════════════════════════════
+            function setLanguage(lang) {
+                currentLang = lang;
+                document.body.dataset.lang = lang;
+                document.getElementById('btnLangEn').classList.toggle('active', lang === 'en');
+                document.getElementById('btnLangKm').classList.toggle('active', lang === 'km');
+                document.querySelectorAll('select option').forEach(opt => {
+                    const txt = lang === 'en' ? opt.dataset.en : opt.dataset.km;
+                    if (txt) opt.textContent = txt;
+                });
+                const ta = document.getElementById('openFeedback');
+                if (ta) ta.placeholder = ta.dataset[lang + 'Placeholder'] || '';
+                updateProgress();
+            }
+            document.getElementById('btnLangEn').addEventListener('click', () => setLanguage('en'));
+            document.getElementById('btnLangKm').addEventListener('click', () => setLanguage('km'));
+
+            // ══════════════════════════════════════════
+            // NAVIGATION & VALIDATION
+            // ══════════════════════════════════════════
+            function goToSection(targetIndex) {
+                if (targetIndex > currentSection && currentSection < 6) {
+                    const error = validateSection(currentSection);
+                    if (error) {
+                        showToast(error, 'error');
+                        const card = document.querySelector(`#section${currentSection} .card`);
+                        if (card) { card.style.borderColor = '#c0392b'; setTimeout(() => card.style.borderColor = '', 2000); }
+                        return;
+                    }
+                }
+                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+                const target = document.getElementById('section' + targetIndex);
+                if (target) {
+                    target.classList.add('active');
+                    currentSection = targetIndex;
+                    updateProgress();
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }
+            function updateProgress() {
+                const formSections = 6;
+                const completed = Math.min(currentSection, formSections - 1);
+                const pct = Math.round((completed / (formSections - 1)) * 100);
+                progressBar.style.width = pct + '%';
+                progressPercent.textContent = pct + '%';
+                const labels = translate('section_labels').split(',');
+                if (currentSection < formSections) {
+                    progressStep.textContent = translate('progress_section') + ' ' + (currentSection + 1) + ' ' + translate('progress_of') + ' ' + formSections + ' — ' + labels[currentSection];
+                } else {
+                    progressStep.textContent = translate('progress_complete');
+                    progressBar.style.width = '100%';
+                    progressPercent.textContent = '100%';
+                }
+            }
+            function validateSection(idx) {
+                switch (idx) {
+                    case 1:
+                        if (!document.getElementById('gender').value) return translate('validation_select_gender');
+                        if (!document.getElementById('ageRange').value) return translate('validation_select_age');
+                        if (!document.getElementById('yearsOfService').value) return translate('validation_select_service');
+                        if (!document.getElementById('positionCategory').value) return translate('validation_select_position');
+                        break;
+                    case 2:
+                        const org = document.getElementById('orgType').value;
+                        if (!org) return translate('validation_select_org');
+                        if (org === 'phd_office' && !document.getElementById('phdOffice').value) return translate('validation_select_phd');
+                        if (org === 'operational_district' && !document.getElementById('odOffice').value) return translate('validation_select_od');
+                        if (org === 'referral_hospital' && !document.getElementById('hospital').value) return translate('validation_select_hospital');
+                        if (org === 'health_center' && !document.getElementById('healthCenter').value) return translate('validation_select_hc');
+                        if (org === 'health_post' && !document.getElementById('healthPost').value) return translate('validation_select_hp');
+                        break;
+                    case 3:
+                        for (let i=1;i<=5;i++) if (!getRadio('q3_'+i)) return translate('validation_likert_job');
+                        break;
+                    case 4:
+                        for (let i=1;i<=5;i++) if (!getRadio('q4_'+i)) return translate('validation_likert_env');
+                        break;
+                }
+                return null;
+            }
+            function getRadio(name) { const r = document.querySelector(`input[name="${name}"]:checked`); return r ? r.value : null; }
+
+            // ══════════════════════════════════════════
+            // ORGANIZATION DROPDOWNS
+            // ══════════════════════════════════════════
+            function updateOrgDetails() {
+                const groups = ['phdOfficeGroup','odOfficeGroup','hospitalGroup','healthCenterGroup','healthPostGroup'];
+                groups.forEach(id => document.getElementById(id).style.display = 'none');
+                ['phdOffice','odOffice','hospital','healthCenter','healthPost'].forEach(id => document.getElementById(id).value = '');
+                const org = document.getElementById('orgType').value;
+                if (org === 'phd_office') document.getElementById('phdOfficeGroup').style.display = 'block';
+                if (org === 'operational_district') document.getElementById('odOfficeGroup').style.display = 'block';
+                if (org === 'referral_hospital') document.getElementById('hospitalGroup').style.display = 'block';
+                if (org === 'health_center') document.getElementById('healthCenterGroup').style.display = 'block';
+                if (org === 'health_post') document.getElementById('healthPostGroup').style.display = 'block';
+            }
+
+            // ══════════════════════════════════════════
+            // SURVEY SUBMISSION
+            // ══════════════════════════════════════════
+            function submitSurvey() {
+                for (let i=1;i<=5;i++) if (!getRadio('q5_'+i)) { showToast(translate('validation_likert_well'),'error'); return; }
+                if (isSubmitting) return;
+                isSubmitting = true;
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '⏳ ' + (currentLang==='km' ? 'កំពុងបញ្ជូន...' : 'Submitting...');
+                const data = gatherData();
+                fetch(GAS_WEB_APP_URL, { method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain;charset=utf-8'}, body:JSON.stringify(data) })
+                .then(() => handleSuccess(data))
+                .catch(() => handleSuccess(data))
+                .finally(() => { isSubmitting = false; submitBtn.disabled = false; submitBtn.innerHTML = '✅ ' + (currentLang==='km' ? 'បញ្ជូនការស្ទង់មតិ' : 'Submit Survey'); });
+            }
+            function gatherData() {
+                const org = document.getElementById('orgType').value;
+                let detail='', detailLabel='';
+                const selMap = { phd_office:'phdOffice', operational_district:'odOffice', referral_hospital:'hospital', health_center:'healthCenter', health_post:'healthPost' };
+                if (selMap[org]) {
+                    const el = document.getElementById(selMap[org]);
+                    detail = el.value; detailLabel = el.selectedOptions[0]?.textContent || '';
+                }
+                const responses = {};
+                for (let s=3;s<=5;s++) for (let i=1;i<=5;i++) { const q = 'q'+s+'_'+i; responses[q] = parseInt(getRadio(q))||0; }
+                return {
+                    timestamp: new Date().toISOString(),
+                    gender: document.getElementById('gender').value,
+                    ageRange: document.getElementById('ageRange').value,
+                    yearsOfService: document.getElementById('yearsOfService').value,
+                    positionCategory: document.getElementById('positionCategory').value,
+                    orgType: org, orgDetail: detail, orgDetailLabel: detailLabel,
+                    responses, openFeedback: document.getElementById('openFeedback').value.trim(),
+                    overallScore: Object.values(responses).reduce((a,b)=>a+b,0) / Object.values(responses).length || 0
+                };
+            }
+            function handleSuccess(data) {
+                try { const store = JSON.parse(localStorage.getItem('khch_survey_submissions')||'[]'); store.push(data); localStorage.setItem('khch_survey_submissions', JSON.stringify(store)); } catch(e){}
+                showToast(translate('submit_success'), 'success');
+                goToSection(6);
+            }
+
+            // ══════════════════════════════════════════
+            // ADMIN LOGIN & REPORTS
+            // ══════════════════════════════════════════
+            adminLink.addEventListener('click', () => {
+                if (isAdmin) { showAdminPanel(); } else { loginModal.classList.add('show'); }
+            });
+            document.getElementById('btnLoginCancel').addEventListener('click', () => loginModal.classList.remove('show'));
+            document.getElementById('btnLoginSubmit').addEventListener('click', () => {
+                const pwd = document.getElementById('adminPassword').value.trim();
+                if (!pwd) return showToast('Please enter password.', 'error');
+                if (pwd === ADMIN_API_KEY) {
+                    isAdmin = true;
+                    loginModal.classList.remove('show');
+                    showToast('Login successful', 'success');
+                    showAdminPanel();
+                } else {
+                    showToast('Incorrect password', 'error');
+                }
+                document.getElementById('adminPassword').value = '';
+            });
+            document.getElementById('btnLogout').addEventListener('click', () => {
+                isAdmin = false;
+                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+                document.getElementById('section0').classList.add('active');
+                currentSection = 0;
+                updateProgress();
+                showToast('Logged out', 'success');
+            });
+            function showAdminPanel() {
+                document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+                sectionAdmin.classList.add('active');
+                document.getElementById('overallReport').style.display = 'none';
+                document.getElementById('detailedReport').style.display = 'none';
+            }
+
+            // Overall summary
+            document.getElementById('btnOverall').addEventListener('click', async () => {
+                document.getElementById('overallReport').style.display = 'block';
+                document.getElementById('detailedReport').style.display = 'none';
+                try {
+                    const res = await fetch(GAS_WEB_APP_URL + '?action=summary&apiKey=' + ADMIN_API_KEY);
+                    const data = await res.json();
+                    if (data.error) { showToast(data.error, 'error'); return; }
+                    renderOverallSummary(data);
+                } catch (e) { showToast('Failed to load summary', 'error'); }
+            });
+            function renderOverallSummary(data) {
+                document.getElementById('totalResponses').textContent = data.totalResponses;
+                const tbody = document.querySelector('#overallTable tbody');
+                tbody.innerHTML = '';
+                data.questions.forEach(q => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `<td>${q.label}</td><td>${q.average.toFixed(2)}</td><td>${q.stdDev.toFixed(2)}</td>`;
+                    tbody.appendChild(tr);
+                });
+                window.overallData = data;
+            }
+            document.getElementById('downloadOverallCSV').addEventListener('click', () => {
+                if (!window.overallData) return;
+                let csv = 'Question,Average,StdDev\n';
+                window.overallData.questions.forEach(q => csv += `"${q.label}",${q.average.toFixed(2)},${q.stdDev.toFixed(2)}\n`);
+                downloadCSV(csv, 'overall_summary.csv');
+            });
+
+            // Detailed data
+            document.getElementById('btnDetailed').addEventListener('click', async () => {
+                document.getElementById('detailedReport').style.display = 'block';
+                document.getElementById('overallReport').style.display = 'none';
+                await loadFilterOptions();
+                applyDetailedFilter();
+            });
+            async function loadFilterOptions() {
+                try {
+                    const res = await fetch(GAS_WEB_APP_URL + '?action=filters&apiKey=' + ADMIN_API_KEY);
+                    const data = await res.json();
+                    populateSelect('filterOrgType', data.orgTypes);
+                    populateSelect('filterFacility', data.facilities);
+                } catch (e) { console.error(e); }
+            }
+            function populateSelect(id, options) {
+                const select = document.getElementById(id);
+                select.innerHTML = '<option value="">All</option>';
+                options.forEach(opt => {
+                    const option = document.createElement('option');
+                    option.value = opt; option.textContent = opt;
+                    select.appendChild(option);
+                });
+            }
+            document.getElementById('applyFilter').addEventListener('click', applyDetailedFilter);
+            async function applyDetailedFilter() {
+                const orgType = document.getElementById('filterOrgType').value;
+                const facility = document.getElementById('filterFacility').value;
+                let url = GAS_WEB_APP_URL + '?action=detailed&apiKey=' + ADMIN_API_KEY;
+                if (orgType) url += '&orgType=' + encodeURIComponent(orgType);
+                if (facility) url += '&facility=' + encodeURIComponent(facility);
+                try {
+                    const res = await fetch(url);
+                    const data = await res.json();
+                    renderDetailedTable(data);
+                } catch (e) { showToast('Failed to load data', 'error'); }
+            }
+            function renderDetailedTable(rows) {
+                const container = document.getElementById('detailedTableContainer');
+                if (rows.length === 0) { container.innerHTML = '<p>No data found.</p>'; return; }
+                const headers = Object.keys(rows[0]);
+                let html = '<table class="report-table"><thead><tr>';
+                headers.forEach(h => html += `<th>${h}</th>`);
+                html += '</tr></thead><tbody>';
+                rows.forEach(row => {
+                    html += '<tr>';
+                    headers.forEach(h => html += `<td>${row[h] !== null ? row[h] : ''}</td>`);
+                    html += '</tr>';
+                });
+                html += '</tbody></table>';
+                container.innerHTML = html;
+                window.detailedData = { headers, rows };
+            }
+            document.getElementById('downloadDetailedCSV').addEventListener('click', () => {
+                if (!window.detailedData) return;
+                const { headers, rows } = window.detailedData;
+                let csv = headers.join(',') + '\n';
+                rows.forEach(row => csv += headers.map(h => `"${row[h] !== null ? row[h] : ''}"`).join(',') + '\n');
+                downloadCSV(csv, 'detailed_responses.csv');
+            });
+            function downloadCSV(csvContent, filename) {
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = filename;
+                link.click();
+            }
+
+            // ══════════════════════════════════════════
+            // TOAST & INIT
+            // ══════════════════════════════════════════
+            function showToast(msg, type) {
+                const toast = document.createElement('div'); toast.className = 'toast '+type; toast.textContent = msg;
+                toastContainer.appendChild(toast);
+                setTimeout(() => { toast.style.opacity='0'; setTimeout(() => toast.remove(), 400); }, 3500);
+            }
+
+            window.goToSection = goToSection;
+            window.updateOrgDetails = updateOrgDetails;
+            window.submitSurvey = submitSurvey;
+
+            document.addEventListener('DOMContentLoaded', () => {
+                setLanguage('en');
+                updateProgress();
+                updateOrgDetails();
+            });
+        })();
+    </script>
+</body>
+</html>
