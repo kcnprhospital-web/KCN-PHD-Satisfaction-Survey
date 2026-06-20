@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Staff Satisfaction Survey | Kampong Chhnang PHD</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Khmer:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <!-- SheetJS for Excel export -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+    <!-- jsPDF for PDF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
     <style>
         :root {
             --primary: #0d4f7c;
@@ -39,11 +47,13 @@
         }
         body[data-lang="en"] .lang-km { display: none !important; }
         body[data-lang="km"] .lang-en { display: none !important; }
+
+        /* HEADER */
         .header {
             background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 50%, var(--primary-light) 100%);
             color: #fff; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 20px rgba(0,0,0,0.18);
         }
-        .header-inner { max-width: 960px; margin: 0 auto; padding: 16px 24px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+        .header-inner { max-width: 1200px; margin: 0 auto; padding: 16px 24px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
         .header-logo { display: flex; align-items: center; justify-content: center; flex-shrink: 0; height: 52px; width: auto; }
         .header-logo svg { height: 52px; width: auto; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2)); }
         .header-title h1 { font-size: 1.2rem; font-weight: 700; line-height: 1.3; }
@@ -52,20 +62,30 @@
         .lang-btn { background: transparent; border: none; color: #fff; padding: 6px 16px; border-radius: 20px; font-weight: 600; font-size: 0.82rem; cursor: pointer; transition: var(--transition); font-family: var(--font); }
         .lang-btn.active { background: #fff; color: var(--primary); box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
         .lang-btn:not(.active):hover { background: rgba(255,255,255,0.2); }
-        .container { max-width: 960px; margin: 0 auto; padding: 24px 20px 60px; }
-        .progress-wrap { background: var(--card-bg); border-radius: var(--radius); padding: 18px 22px; margin-bottom: 20px; box-shadow: var(--shadow); display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+
+        /* CONTAINER & PROGRESS */
+        .container { max-width: 1200px; margin: 0 auto; padding: 24px 20px 60px; }
+        .progress-wrap {
+            background: var(--card-bg); border-radius: var(--radius); padding: 18px 22px; margin-bottom: 20px; box-shadow: var(--shadow); display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+        }
         .progress-bar-outer { flex:1; min-width:180px; height:10px; background:#e9edf1; border-radius:10px; overflow:hidden; }
         .progress-bar-inner { height:100%; background:linear-gradient(90deg, var(--primary-light), var(--accent)); border-radius:10px; transition:width 0.5s; width:0%; }
         .progress-text { font-weight:700; font-size:0.9rem; color:var(--primary); white-space:nowrap; }
         .progress-step { font-size:0.78rem; color:var(--text-light); white-space:nowrap; }
+
+        /* SECTIONS & CARDS */
         .section { display: none; animation: fadeSlideIn 0.4s ease; }
         .section.active { display: block; }
         @keyframes fadeSlideIn { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:translateY(0); } }
-        .card { background: var(--card-bg); border-radius: var(--radius); padding: 28px 30px; margin-bottom: 18px; box-shadow: var(--shadow); border:1px solid var(--border); transition: var(--transition); }
+        .card {
+            background: var(--card-bg); border-radius: var(--radius); padding: 28px 30px; margin-bottom: 18px; box-shadow: var(--shadow); border:1px solid var(--border); transition: var(--transition);
+        }
         .card:hover { box-shadow: var(--shadow-lg); }
         .card h2 { font-size:1.3rem; color:var(--primary-dark); margin-bottom:6px; display:flex; align-items:center; gap:10px; }
         .card h2 .icon { font-size:1.5rem; }
         .card .subtitle { color:var(--text-light); font-size:0.88rem; margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid var(--border); }
+
+        /* FORMS */
         .form-group { margin-bottom:18px; }
         label { display:block; font-weight:600; font-size:0.9rem; margin-bottom:5px; color:var(--text); }
         label .required { color:var(--danger); margin-left:3px; }
@@ -80,6 +100,8 @@
         }
         select:focus, input:focus, textarea:focus { outline:none; border-color:var(--primary-light); box-shadow:0 0 0 3px rgba(13,79,124,0.08); background:#fff; }
         textarea { resize:vertical; min-height:100px; }
+
+        /* LIKERT */
         .likert-group { margin-bottom:20px; padding:14px 16px; background:#fafcfd; border-radius:var(--radius-sm); border:1px solid transparent; transition:var(--transition); }
         .likert-group:hover { border-color:#d0dbe4; background:#fdfefe; }
         .likert-group .q-text { font-weight:500; font-size:0.93rem; margin-bottom:10px; color:var(--text); }
@@ -95,6 +117,8 @@
         .likert-options input[type="radio"]:checked+label.radio-btn { background:var(--primary); color:#fff; border-color:var(--primary); box-shadow:0 3px 10px rgba(13,79,124,0.3); transform:scale(1.06); }
         .likert-labels { display:flex; justify-content:space-between; font-size:0.7rem; color:#8899aa; margin-top:4px; padding:0 4px; }
         .likert-labels span { text-align:center; width:42px; }
+
+        /* BUTTONS */
         .btn-row { display:flex; gap:12px; flex-wrap:wrap; margin-top:24px; }
         .btn { padding:12px 28px; border-radius:30px; font-weight:600; font-size:0.95rem; cursor:pointer; border:none; transition:var(--transition); letter-spacing:0.02em; font-family:var(--font); display:inline-flex; align-items:center; gap:8px; }
         .btn-primary { background:var(--primary); color:#fff; box-shadow:0 4px 14px rgba(13,79,124,0.3); }
@@ -105,22 +129,44 @@
         .btn-accent:hover { background:var(--accent-light); box-shadow:0 6px 20px rgba(232,168,23,0.45); transform:translateY(-1px); }
         .btn:disabled { opacity:0.55; cursor:not-allowed; pointer-events:none; }
         .btn-sm { padding:8px 18px; font-size:0.8rem; }
+
+        /* MODAL */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 200; }
         .modal.show { display: flex; }
         .modal-content { background: #fff; border-radius: var(--radius); padding: 30px; max-width: 400px; width: 90%; box-shadow: var(--shadow-lg); }
         .modal-content h3 { margin-bottom: 16px; color: var(--primary-dark); }
+
+        /* DASHBOARD */
         .report-table { width:100%; border-collapse:collapse; margin-top:10px; font-size:0.85rem; }
         .report-table th, .report-table td { border:1px solid var(--border); padding:8px 10px; text-align:left; }
         .report-table th { background: var(--primary); color:#fff; }
         .report-filter { display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end; margin-bottom:18px; }
         .report-filter .form-group { margin-bottom:0; flex:1; min-width:150px; }
         .privacy-box { background:#fef9ed; border:1px solid #f0d78c; border-radius:var(--radius-sm); padding:16px 18px; margin:16px 0; font-size:0.88rem; color:#6b5518; display:flex; gap:10px; align-items:flex-start; }
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 18px;
+            margin-bottom: 20px;
+        }
+        .kpi-card {
+            text-align: center; padding: 20px;
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
+            color: #fff; border-radius: var(--radius); box-shadow: var(--shadow-lg);
+        }
+        .kpi-card h3 { font-size: 0.9rem; opacity: 0.9; }
+        .kpi-card .value { font-size: 2.2rem; font-weight: 700; }
+        .chart-container { position: relative; width: 100%; height: 300px; margin: 10px 0; }
+        .export-buttons { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+
+        /* TOAST */
         .toast { position:fixed; top:20px; right:20px; z-index:9999; padding:14px 22px; border-radius:30px; color:#fff; font-weight:600; font-size:0.9rem; box-shadow:0 6px 24px rgba(0,0,0,0.25); animation:slideInRight 0.35s ease; max-width:400px; }
         .toast.success { background:var(--success); }
         .toast.error { background:var(--danger); }
         @keyframes slideInRight { from {opacity:0; transform:translateX(60px);} to {opacity:1; transform:translateX(0);} }
         .footer { text-align:center; padding:20px; color:var(--text-light); font-size:0.8rem; }
         .footer a { color:var(--primary); cursor:pointer; text-decoration:underline; }
+
         @media (max-width:640px) {
             .header-inner { padding:10px 14px; gap:10px; }
             .header-logo svg { height:38px; }
@@ -128,11 +174,13 @@
             .card { padding:18px 14px; }
             .likert-options label.radio-btn { width:34px; height:34px; font-size:0.78rem; }
             .btn { padding:10px 20px; font-size:0.85rem; }
+            .dashboard-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body data-lang="en">
 
+    <!-- HEADER -->
     <header class="header">
         <div class="header-inner">
             <div class="header-logo">
@@ -158,7 +206,7 @@
 
     <div class="container" id="appContainer">
 
-        <!-- SECTION 0: WELCOME -->
+        <!-- ============= SECTION 0: WELCOME ============= -->
         <div class="section active" data-section="0" id="section0">
             <div class="card">
                 <h2><span class="icon">📋</span><span class="lang-en">Welcome to the Staff Satisfaction Survey</span><span class="lang-km">សូមស្វាគមន៍មកកាន់ការស្ទង់មតិពេញចិត្តរបស់បុគ្គលិក</span></h2>
@@ -170,7 +218,7 @@
             </div>
         </div>
 
-        <!-- SECTION 1: DEMOGRAPHICS -->
+        <!-- ============= SECTION 1: DEMOGRAPHICS ============= -->
         <div class="section" data-section="1" id="section1">
             <div class="card">
                 <h2><span class="icon">👤</span><span class="lang-en">Demographic Information</span><span class="lang-km">ព័ត៌មានប្រជាសាស្ត្រ</span></h2>
@@ -183,7 +231,7 @@
             </div>
         </div>
 
-        <!-- SECTION 2: ORGANIZATION -->
+        <!-- ============= SECTION 2: ORGANIZATION (with updated health centers) ============= -->
         <div class="section" data-section="2" id="section2">
             <div class="card">
                 <h2><span class="icon">🏥</span><span class="lang-en">Your Workplace / Organization</span><span class="lang-km">កន្លែងធ្វើការ / អង្គភាពរបស់អ្នក</span></h2>
@@ -198,7 +246,7 @@
             </div>
         </div>
 
-        <!-- SECTION 3: JOB SATISFACTION -->
+        <!-- ============= SECTION 3: JOB SATISFACTION ============= -->
         <div class="section" data-section="3" id="section3">
             <div class="card">
                 <h2><span class="icon">💼</span> <span class="lang-en">Job Satisfaction</span><span class="lang-km">ការពេញចិត្តការងារ</span></h2>
@@ -212,7 +260,7 @@
             </div>
         </div>
 
-        <!-- SECTION 4: WORK ENVIRONMENT -->
+        <!-- ============= SECTION 4: WORK ENVIRONMENT ============= -->
         <div class="section" data-section="4" id="section4">
             <div class="card">
                 <h2><span class="icon">🏢</span> <span class="lang-en">Work Environment & Management</span><span class="lang-km">បរិយាកាសការងារ និងការគ្រប់គ្រង</span></h2>
@@ -226,7 +274,7 @@
             </div>
         </div>
 
-        <!-- SECTION 5: WELL‑BEING -->
+        <!-- ============= SECTION 5: WELL‑BEING ============= -->
         <div class="section" data-section="5" id="section5">
             <div class="card">
                 <h2><span class="icon">🌱</span> <span class="lang-en">Well-being, Development & Communication</span><span class="lang-km">សុខុមាលភាព ការអភិវឌ្ឍ និងទំនាក់ទំនង</span></h2>
@@ -241,7 +289,7 @@
             </div>
         </div>
 
-        <!-- SECTION 6: THANK YOU -->
+        <!-- ============= SECTION 6: THANK YOU ============= -->
         <div class="section" data-section="6" id="section6">
             <div class="card thankyou-card" style="text-align:center; padding:48px 30px;">
                 <span style="font-size:5rem; display:block; margin-bottom:16px;">🙏</span>
@@ -251,27 +299,44 @@
             </div>
         </div>
 
-        <!-- ADMIN REPORTS SECTION -->
+        <!-- ============= ADMIN DASHBOARD SECTION ============= -->
         <div class="section" data-section="admin" id="sectionAdmin" style="display:none;">
             <div class="card">
-                <h2><span class="icon">📊</span> Admin Reports Dashboard</h2>
-                <p class="subtitle">View overall statistics and download detailed data.</p>
-                <div style="display:flex; gap:8px; margin-bottom:20px;">
-                    <button class="btn btn-primary btn-sm" id="btnOverall">Overall Summary</button>
-                    <button class="btn btn-secondary btn-sm" id="btnDetailed">Detailed Data</button>
-                    <button class="btn btn-accent btn-sm" id="btnLogout">Logout</button>
+                <h2><span class="icon">📊</span> Staff Satisfaction Dashboard</h2>
+                <div class="export-buttons">
+                    <button class="btn btn-primary btn-sm" id="btnExportPDF">📄 Export PDF Report</button>
+                    <button class="btn btn-secondary btn-sm" id="btnExportExcel">📊 Export Excel</button>
+                    <button class="btn btn-accent btn-sm" id="btnLogout">🔒 Logout</button>
                 </div>
-                <div id="overallReport" style="display:none;">
-                    <h3>Overall Satisfaction Summary</h3>
-                    <p>Average scores per question (1–5 scale). Total responses: <span id="totalResponses">0</span></p>
-                    <table class="report-table" id="overallTable">
-                        <thead><tr><th>Question</th><th>Average</th><th>Std Dev</th></tr></thead>
-                        <tbody></tbody>
-                    </table>
-                    <button class="btn btn-secondary btn-sm" id="downloadOverallCSV" style="margin-top:10px;">⬇ Download Overall CSV</button>
+
+                <!-- KPI Cards -->
+                <div class="dashboard-grid" id="kpiContainer"></div>
+
+                <!-- Charts -->
+                <div class="card">
+                    <h3>📈 Overall Satisfaction by Dimension</h3>
+                    <div class="chart-container">
+                        <canvas id="dimensionChart"></canvas>
+                    </div>
                 </div>
-                <div id="detailedReport" style="display:none;">
-                    <h3>Detailed Response Data</h3>
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <h3>🎯 Satisfaction Score Distribution</h3>
+                        <div class="chart-container">
+                            <canvas id="pieChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3>🏥 Responses by Facility Type</h3>
+                        <div class="chart-container">
+                            <canvas id="facilityChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detailed Table with Filters -->
+                <div class="card">
+                    <h3>📋 Detailed Response Data</h3>
                     <div class="report-filter">
                         <div class="form-group">
                             <label>Organization Type</label>
@@ -284,17 +349,18 @@
                         <button class="btn btn-primary btn-sm" id="applyFilter">Apply</button>
                     </div>
                     <div id="detailedTableContainer" style="overflow-x:auto;"></div>
-                    <button class="btn btn-secondary btn-sm" id="downloadDetailedCSV" style="margin-top:10px;">⬇ Download Detailed CSV</button>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- FOOTER -->
     <div class="footer">
         <span>© Kampong Chhnang Provincial Health Department</span> |
         <a id="adminLink">Admin Login</a>
     </div>
 
+    <!-- ADMIN LOGIN MODAL -->
     <div class="modal" id="loginModal">
         <div class="modal-content">
             <h3>Admin Login</h3>
@@ -309,6 +375,7 @@
         </div>
     </div>
 
+    <!-- TOAST CONTAINER -->
     <div id="toastContainer"></div>
 
     <script>
@@ -321,6 +388,10 @@
             let currentLang = 'en';
             let isAdmin = false;
 
+            // Chart instances
+            let dimensionChartInstance, pieChartInstance, facilityChartInstance;
+
+            // DOM
             const progressBar = document.getElementById('progressBar');
             const progressPercent = document.getElementById('progressPercent');
             const progressStep = document.getElementById('progressStep');
@@ -330,6 +401,7 @@
             const adminLink = document.getElementById('adminLink');
             const sectionAdmin = document.getElementById('sectionAdmin');
 
+            // Translation
             const t = {
                 en: {
                     section_labels: ['Welcome','Demographics','Organization','Job Satisfaction','Work Environment','Well-being & Feedback'],
@@ -374,6 +446,7 @@
             };
             function translate(key) { return t[currentLang][key] || key; }
 
+            // Language
             function setLanguage(lang) {
                 currentLang = lang;
                 document.body.dataset.lang = lang;
@@ -390,6 +463,7 @@
             document.getElementById('btnLangEn').addEventListener('click', () => setLanguage('en'));
             document.getElementById('btnLangKm').addEventListener('click', () => setLanguage('km'));
 
+            // Navigation
             function goToSection(targetIndex) {
                 if (targetIndex > currentSection && currentSection < 6) {
                     const error = validateSection(currentSection);
@@ -452,6 +526,7 @@
             }
             function getRadio(name) { const r = document.querySelector(`input[name="${name}"]:checked`); return r ? r.value : null; }
 
+            // Organization dropdowns
             function updateOrgDetails() {
                 const groups = ['phdOfficeGroup','odOfficeGroup','hospitalGroup','healthCenterGroup','healthPostGroup'];
                 groups.forEach(id => document.getElementById(id).style.display = 'none');
@@ -464,6 +539,7 @@
                 if (org === 'health_post') document.getElementById('healthPostGroup').style.display = 'block';
             }
 
+            // Submit survey
             function submitSurvey() {
                 for (let i=1;i<=5;i++) if (!getRadio('q5_'+i)) { showToast(translate('validation_likert_well'),'error'); return; }
                 if (isSubmitting) return;
@@ -503,7 +579,9 @@
                 goToSection(6);
             }
 
-            // ADMIN
+            // ══════════════════════════════════════════
+            // ADMIN LOGIN & DASHBOARD
+            // ══════════════════════════════════════════
             adminLink.addEventListener('click', () => {
                 if (isAdmin) { showAdminPanel(); } else { loginModal.classList.add('show'); }
             });
@@ -527,66 +605,110 @@
                 updateProgress();
                 showToast('Logged out', 'success');
             });
+
             function showAdminPanel() {
                 document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
                 sectionAdmin.classList.add('active');
                 sectionAdmin.style.display = 'block';
-                document.getElementById('overallReport').style.display = 'none';
-                document.getElementById('detailedReport').style.display = 'none';
+                loadDashboardData();
             }
 
-            document.getElementById('btnOverall').addEventListener('click', async () => {
-                document.getElementById('overallReport').style.display = 'block';
-                document.getElementById('detailedReport').style.display = 'none';
+            // Load all data for charts + table
+            async function loadDashboardData() {
                 try {
-                    const res = await fetch(GAS_WEB_APP_URL + '?action=summary&apiKey=' + ADMIN_API_KEY);
-                    const data = await res.json();
-                    if (data.error) { showToast(data.error, 'error'); return; }
-                    renderOverallSummary(data);
-                } catch (e) { showToast('Failed to load summary', 'error'); }
-            });
-            function renderOverallSummary(data) {
-                document.getElementById('totalResponses').textContent = data.totalResponses;
-                const tbody = document.querySelector('#overallTable tbody');
-                tbody.innerHTML = '';
-                data.questions.forEach(q => {
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `<td>${q.label}</td><td>${q.average.toFixed(2)}</td><td>${q.stdDev.toFixed(2)}</td>`;
-                    tbody.appendChild(tr);
-                });
-                window.overallData = data;
-            }
-            document.getElementById('downloadOverallCSV').addEventListener('click', () => {
-                if (!window.overallData) return;
-                let csv = 'Question,Average,StdDev\n';
-                window.overallData.questions.forEach(q => csv += `"${q.label}",${q.average.toFixed(2)},${q.stdDev.toFixed(2)}\n`);
-                downloadCSV(csv, 'overall_summary.csv');
-            });
+                    const [summaryRes, filterRes, detailedRes] = await Promise.all([
+                        fetch(GAS_WEB_APP_URL + '?action=summary&apiKey=' + ADMIN_API_KEY),
+                        fetch(GAS_WEB_APP_URL + '?action=filters&apiKey=' + ADMIN_API_KEY),
+                        fetch(GAS_WEB_APP_URL + '?action=detailed&apiKey=' + ADMIN_API_KEY)
+                    ]);
+                    const summary = await summaryRes.json();
+                    const filterData = await filterRes.json();
+                    const detailed = await detailedRes.json();
 
-            document.getElementById('btnDetailed').addEventListener('click', async () => {
-                document.getElementById('detailedReport').style.display = 'block';
-                document.getElementById('overallReport').style.display = 'none';
-                await loadFilterOptions();
-                applyDetailedFilter();
-            });
-            async function loadFilterOptions() {
-                try {
-                    const res = await fetch(GAS_WEB_APP_URL + '?action=filters&apiKey=' + ADMIN_API_KEY);
-                    const data = await res.json();
-                    populateSelect('filterOrgType', data.orgTypes);
-                    populateSelect('filterFacility', data.facilities);
-                } catch (e) { console.error(e); }
+                    if (summary.error) { showToast(summary.error, 'error'); return; }
+
+                    window.adminData = { summary, detailed };
+                    renderKPIs(summary);
+                    renderDimensionChart(summary.questions);
+                    renderPieChart(summary.questions);
+                    renderFacilityChart(detailed);
+                    populateSelect('filterOrgType', filterData.orgTypes);
+                    populateSelect('filterFacility', filterData.facilities);
+                    applyDetailedFilter(); // initial table load
+                } catch (e) {
+                    showToast('Failed to load dashboard', 'error');
+                }
             }
-            function populateSelect(id, options) {
-                const select = document.getElementById(id);
-                select.innerHTML = '<option value="">All</option>';
-                options.forEach(opt => {
-                    const option = document.createElement('option');
-                    option.value = opt; option.textContent = opt;
-                    select.appendChild(option);
+
+            function renderKPIs(summary) {
+                const overallAvg = summary.questions.reduce((s, q) => s + q.average, 0) / summary.questions.length || 0;
+                const highest = summary.questions.reduce((a, b) => a.average > b.average ? a : b);
+                document.getElementById('kpiContainer').innerHTML = `
+                    <div class="kpi-card"><h3>Total Responses</h3><div class="value">${summary.totalResponses}</div></div>
+                    <div class="kpi-card"><h3>Overall Satisfaction</h3><div class="value">${overallAvg.toFixed(2)} / 5.00</div></div>
+                    <div class="kpi-card"><h3>Highest Rated</h3><div class="value" style="font-size:1.2rem;">${highest.label}</div></div>
+                `;
+            }
+
+            function renderDimensionChart(questions) {
+                if (dimensionChartInstance) dimensionChartInstance.destroy();
+                const ctx = document.getElementById('dimensionChart').getContext('2d');
+                dimensionChartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: questions.map(q => q.label.substring(0,8)),
+                        datasets: [{
+                            label: 'Average Score',
+                            data: questions.map(q => q.average),
+                            backgroundColor: 'rgba(13,79,124,0.7)',
+                            borderColor: '#0d4f7c',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 5 } } }
                 });
             }
-            document.getElementById('applyFilter').addEventListener('click', applyDetailedFilter);
+
+            function renderPieChart(questions) {
+                if (pieChartInstance) pieChartInstance.destroy();
+                const ctx = document.getElementById('pieChart').getContext('2d');
+                const total = questions.reduce((s,q) => s + q.average, 0);
+                const percentages = questions.map(q => (q.average / total * 100).toFixed(1));
+                pieChartInstance = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: questions.map(q => q.label.substring(0,8)),
+                        datasets: [{
+                            data: percentages,
+                            backgroundColor: ['#0d4f7c','#1a6daa','#e8a817','#2d8a4e','#c0392b','#5a6c7d','#f5c34b','#083752','#d0d8e0','#6b7d8e','#8899aa','#dce3e8','#fafbfc','#fdfefe','#eef5fb']
+                        }]
+                    }
+                });
+            }
+
+            function renderFacilityChart(detailedData) {
+                if (facilityChartInstance) facilityChartInstance.destroy();
+                const ctx = document.getElementById('facilityChart').getContext('2d');
+                const orgTypeCounts = {};
+                detailedData.forEach(row => {
+                    const type = row['Organization Type'] || 'Unknown';
+                    orgTypeCounts[type] = (orgTypeCounts[type] || 0) + 1;
+                });
+                facilityChartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(orgTypeCounts),
+                        datasets: [{
+                            label: 'Responses',
+                            data: Object.values(orgTypeCounts),
+                            backgroundColor: 'rgba(232,168,23,0.7)'
+                        }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+                });
+            }
+
+            // Detailed table (same logic as before)
             async function applyDetailedFilter() {
                 const orgType = document.getElementById('filterOrgType').value;
                 const facility = document.getElementById('filterFacility').value;
@@ -597,8 +719,10 @@
                     const res = await fetch(url);
                     const data = await res.json();
                     renderDetailedTable(data);
+                    window.currentDetailedData = data;
                 } catch (e) { showToast('Failed to load data', 'error'); }
             }
+
             function renderDetailedTable(rows) {
                 const container = document.getElementById('detailedTableContainer');
                 if (rows.length === 0) { container.innerHTML = '<p>No data found.</p>'; return; }
@@ -613,22 +737,58 @@
                 });
                 html += '</tbody></table>';
                 container.innerHTML = html;
-                window.detailedData = { headers, rows };
             }
-            document.getElementById('downloadDetailedCSV').addEventListener('click', () => {
-                if (!window.detailedData) return;
-                const { headers, rows } = window.detailedData;
-                let csv = headers.join(',') + '\n';
-                rows.forEach(row => csv += headers.map(h => `"${row[h] !== null ? row[h] : ''}"`).join(',') + '\n');
-                downloadCSV(csv, 'detailed_responses.csv');
+
+            // Export PDF
+            document.getElementById('btnExportPDF').addEventListener('click', () => {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                doc.setFontSize(16);
+                doc.text('Kampong Chhnang PHD - Staff Satisfaction Report', 14, 20);
+                doc.setFontSize(10);
+                doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 28);
+                if (window.adminData && window.adminData.summary) {
+                    doc.autoTable({
+                        startY: 35,
+                        head: [['Question', 'Average', 'Std Dev']],
+                        body: window.adminData.summary.questions.map(q => [q.label, q.average.toFixed(2), q.stdDev.toFixed(2)])
+                    });
+                }
+                if (window.currentDetailedData && window.currentDetailedData.length > 0) {
+                    const headers = Object.keys(window.currentDetailedData[0]);
+                    doc.addPage();
+                    doc.text('Detailed Responses', 14, 20);
+                    doc.autoTable({
+                        startY: 30,
+                        head: [headers],
+                        body: window.currentDetailedData.map(row => headers.map(h => row[h] ?? ''))
+                    });
+                }
+                doc.save('KCH_Satisfaction_Report.pdf');
             });
-            function downloadCSV(csvContent, filename) {
-                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = filename;
-                link.click();
+
+            // Export Excel
+            document.getElementById('btnExportExcel').addEventListener('click', () => {
+                if (!window.currentDetailedData || window.currentDetailedData.length === 0) {
+                    return showToast('No detailed data to export', 'error');
+                }
+                const ws = XLSX.utils.json_to_sheet(window.currentDetailedData);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, 'Responses');
+                XLSX.writeFile(wb, 'KCH_Satisfaction_Data.xlsx');
+            });
+
+            function populateSelect(id, options) {
+                const select = document.getElementById(id);
+                select.innerHTML = '<option value="">All</option>';
+                options.forEach(opt => {
+                    const option = document.createElement('option');
+                    option.value = opt; option.textContent = opt;
+                    select.appendChild(option);
+                });
             }
+
+            document.getElementById('applyFilter').addEventListener('click', applyDetailedFilter);
 
             function showToast(msg, type) {
                 const toast = document.createElement('div'); toast.className = 'toast '+type; toast.textContent = msg;
